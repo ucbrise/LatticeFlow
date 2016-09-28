@@ -7,15 +7,15 @@
 #include "lattices/bool_and_lattice.h"
 #include "lattices/bool_or_lattice.h"
 
-namespace lf = latticeflow;
+namespace latticeflow {
 
-using BoolBoolLattice = lf::PairLattice<lf::BoolOrLattice, lf::BoolAndLattice>;
+using BoolBoolLattice = PairLattice<BoolOrLattice, BoolAndLattice>;
 
 TEST(BoolBoolLattice, Basics) {
-  lf::BoolOrLattice x1(true);
-  lf::BoolAndLattice y1(false);
-  lf::BoolOrLattice x2(false);
-  lf::BoolAndLattice y2(true);
+  BoolOrLattice x1(true);
+  BoolAndLattice y1(false);
+  BoolOrLattice x2(false);
+  BoolAndLattice y2(true);
   BoolBoolLattice p1(x1, y1);
   BoolBoolLattice p2(x2, y2);
 
@@ -28,6 +28,8 @@ TEST(BoolBoolLattice, Basics) {
   EXPECT_EQ(true, std::get<0>(p2.get()).get());
   EXPECT_EQ(false, std::get<1>(p2.get()).get());
 }
+
+}  // namespace latticeflow
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

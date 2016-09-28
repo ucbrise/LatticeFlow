@@ -7,15 +7,14 @@
 #include "lattices/bool_or_lattice.h"
 #include "lattices/max_lattice.h"
 
-namespace lf = latticeflow;
+namespace latticeflow {
 
-using MaxIntLattice = lf::MaxLattice<int>;
-using LamportBoolLattice =
-    lf::TimestampLattice<MaxIntLattice, lf::BoolOrLattice>;
+using MaxIntLattice = MaxLattice<int>;
+using LamportBoolLattice = TimestampLattice<MaxIntLattice, BoolOrLattice>;
 
 TEST(LamportBoolLattice, Basics) {
-  lf::BoolOrLattice tru(true);
-  lf::BoolOrLattice fls(false);
+  BoolOrLattice tru(true);
+  BoolOrLattice fls(false);
   LamportBoolLattice x(MaxIntLattice(1), tru);
   LamportBoolLattice y(MaxIntLattice(1), fls);
   LamportBoolLattice z(MaxIntLattice(42), fls);
@@ -36,6 +35,8 @@ TEST(LamportBoolLattice, Basics) {
   EXPECT_EQ(42, y.timestamp().get());
   EXPECT_EQ(false, y.value().get());
 }
+
+}  // namespace latticeflow
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

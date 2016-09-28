@@ -4,10 +4,10 @@
 
 #include "gtest/gtest.h"
 
-namespace lf = latticeflow;
+namespace latticeflow {
 
-using MaxIntLattice = lf::MaxLattice<int>;
-using MaxStringLattice = lf::MaxLattice<std::string>;
+using MaxIntLattice = MaxLattice<int>;
+using MaxStringLattice = MaxLattice<std::string>;
 
 TEST(MaxIntLattice, Basics) {
   MaxIntLattice x(1);
@@ -54,6 +54,8 @@ TEST(MaxStringLattice, Comparison) {
   EXPECT_FALSE(x == y);
   EXPECT_TRUE(x != y);
 }
+
+}  // namespace latticeflow
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

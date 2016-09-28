@@ -4,10 +4,10 @@
 
 #include "gtest/gtest.h"
 
-namespace lf = latticeflow;
+namespace latticeflow {
 
-using MinIntLattice = lf::MinLattice<int>;
-using MinStringLattice = lf::MinLattice<std::string>;
+using MinIntLattice = MinLattice<int>;
+using MinStringLattice = MinLattice<std::string>;
 
 TEST(MinIntLattice, Basics) {
   MinIntLattice x(1);
@@ -54,6 +54,8 @@ TEST(MinStringLattice, Comparison) {
   EXPECT_FALSE(y == x);
   EXPECT_TRUE(y != x);
 }
+
+}  // namespace latticeflow
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
