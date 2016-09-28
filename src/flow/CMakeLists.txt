@@ -1,0 +1,4 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+CREATE_TEST(filter_test)
+CREATE_TEST(vector_test)

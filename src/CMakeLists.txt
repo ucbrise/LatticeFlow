@@ -5,11 +5,10 @@ SET(LATTICEFLOW_VERSION_MAJOR 0)
 SET(LATTICEFLOW_VERSION_MINOR 1)
 SET(LATTICEFLOW_VERSION_PATCH 0)
 
+INCLUDE(cmake/testing.cmake NO_POLICY_SCOPE)
+
 SET(CMAKE_CXX_FLAGS_DEBUG
     "${CMAKE_CXX_FLAGS_DEBUG} \
-    -fsanitize=address \
-    -O0 \
-    --coverage \
     -std=c++11 \
     -stdlib=libc++")
 SET(CMAKE_CXX_FLAGS_RELEASE
@@ -18,11 +17,14 @@ SET(CMAKE_CXX_FLAGS_RELEASE
     -stdlib=libc++")
 
 ADD_SUBDIRECTORY(vendor/googletest)
+ADD_SUBDIRECTORY(vendor/boost)
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE_DIRECTORIES(.)
 include_directories(${GTEST_INCLUDE_DIRS})
+include_directories(${BOOST_INCLUDE_DIRS})
 
 ENABLE_TESTING()
 ADD_SUBDIRECTORY(lattices)
+ADD_SUBDIRECTORY(flow)
 ADD_SUBDIRECTORY(key_value_stores)
