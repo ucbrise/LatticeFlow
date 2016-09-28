@@ -2,11 +2,11 @@
 
 #include "gtest/gtest.h"
 
-namespace lf = latticeflow;
+namespace latticeflow {
 
 TEST(BoolAndLattice, Basics) {
-  lf::BoolAndLattice x(true);
-  lf::BoolAndLattice y(false);
+  BoolAndLattice x(true);
+  BoolAndLattice y(false);
   EXPECT_EQ(true, x.get());
   EXPECT_EQ(false, y.get());
 
@@ -17,8 +17,8 @@ TEST(BoolAndLattice, Basics) {
 }
 
 TEST(BoolAndLattice, Comparison) {
-  lf::BoolAndLattice tru(true);
-  lf::BoolAndLattice fls(false);
+  BoolAndLattice tru(true);
+  BoolAndLattice fls(false);
 
   EXPECT_TRUE(tru < fls);
   EXPECT_TRUE(tru <= fls);
@@ -27,6 +27,8 @@ TEST(BoolAndLattice, Comparison) {
   EXPECT_FALSE(tru == fls);
   EXPECT_TRUE(tru != fls);
 }
+
+}  // namespace latticeflow
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

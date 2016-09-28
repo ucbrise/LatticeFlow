@@ -6,10 +6,10 @@
 
 #include "lattices/max_lattice.h"
 
-namespace lf = latticeflow;
+namespace latticeflow {
 
-using MaxIntLattice = lf::MaxLattice<int>;
-using StringIntMapLattice = lf::MapLattice<std::string, MaxIntLattice>;
+using MaxIntLattice = MaxLattice<int>;
+using StringIntMapLattice = MapLattice<std::string, MaxIntLattice>;
 
 TEST(StringIntMapLattice, Basics) {
   StringIntMapLattice x;
@@ -37,6 +37,8 @@ TEST(StringIntMapLattice, Basics) {
   EXPECT_EQ(40, x.get("d").get());
   EXPECT_EQ(50, x.get("e").get());
 }
+
+}  // namespace latticeflow
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

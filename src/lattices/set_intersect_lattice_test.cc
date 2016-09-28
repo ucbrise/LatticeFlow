@@ -4,9 +4,9 @@
 
 #include "gtest/gtest.h"
 
-namespace lf = latticeflow;
+namespace latticeflow {
 
-using IntSetLattice = lf::SetIntersectLattice<int>;
+using IntSetLattice = SetIntersectLattice<int>;
 
 TEST(IntSetLattice, Basics) {
   IntSetLattice x(std::unordered_set<int>({1, 2, 3}));
@@ -17,6 +17,8 @@ TEST(IntSetLattice, Basics) {
   x.join(y);
   EXPECT_EQ(std::unordered_set<int>({3}), x.get());
 }
+
+}  // namespace latticeflow
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

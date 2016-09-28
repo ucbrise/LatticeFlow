@@ -6,13 +6,13 @@
 
 #include "lattices/bool_or_lattice.h"
 
-namespace lf = latticeflow;
+namespace latticeflow {
 
-using BoolVectorLattice = lf::VectorLattice<lf::BoolOrLattice>;
+using BoolVectorLattice = VectorLattice<BoolOrLattice>;
 
 TEST(BoolVectorLattice, Basics) {
-  lf::BoolOrLattice tru(true);
-  lf::BoolOrLattice fls(false);
+  BoolOrLattice tru(true);
+  BoolOrLattice fls(false);
   BoolVectorLattice x({tru, fls, fls});
   BoolVectorLattice y({tru, tru, fls, fls});
 
@@ -31,6 +31,8 @@ TEST(BoolVectorLattice, Basics) {
   EXPECT_EQ(fls, x.get()[2]);
   EXPECT_EQ(fls, x.get()[3]);
 }
+
+}  // namespace latticeflow
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
