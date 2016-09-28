@@ -26,6 +26,8 @@ class Filter : public Operator<T> {
     return {};
   }
 
+  void reset() override { child_->reset(); }
+
  private:
   Operator<T>* const child_;
   std::function<bool(const T&)> filter_;

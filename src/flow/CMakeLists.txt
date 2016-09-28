@@ -1,4 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
+CREATE_TEST(cross_test)
+CREATE_TEST(empty_test)
 CREATE_TEST(filter_test)
+CREATE_TEST(map_test)
 CREATE_TEST(vector_test)

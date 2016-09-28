@@ -24,6 +24,8 @@ class Vector : public Operator<T> {
     }
   }
 
+  void reset() override { it_ = xs_.begin(); }
+
  private:
   std::vector<T> xs_;
   typename std::vector<T>::iterator it_;

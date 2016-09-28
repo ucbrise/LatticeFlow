@@ -16,6 +16,12 @@ TEST(Filter, SimpleFilter) {
   EXPECT_EQ(boost::optional<int>(4), evens.next());
   EXPECT_EQ(boost::optional<int>(6), evens.next());
   EXPECT_EQ(boost::optional<int>(), evens.next());
+
+  evens.reset();
+  EXPECT_EQ(boost::optional<int>(2), evens.next());
+  EXPECT_EQ(boost::optional<int>(4), evens.next());
+  EXPECT_EQ(boost::optional<int>(6), evens.next());
+  EXPECT_EQ(boost::optional<int>(), evens.next());
 }
 
 }  // namespace latticeflow

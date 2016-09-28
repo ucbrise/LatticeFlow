@@ -10,10 +10,19 @@ namespace latticeflow {
 TEST(Vector, EmptyVector) {
   Vector<int> v({});
   EXPECT_EQ(boost::optional<int>(), v.next());
+
+  v.reset();
+  EXPECT_EQ(boost::optional<int>(), v.next());
 }
 
 TEST(Vector, NonEmptyVector) {
   Vector<int> v({1, 2, 3});
+  EXPECT_EQ(boost::optional<int>(1), v.next());
+  EXPECT_EQ(boost::optional<int>(2), v.next());
+  EXPECT_EQ(boost::optional<int>(3), v.next());
+  EXPECT_EQ(boost::optional<int>(), v.next());
+
+  v.reset();
   EXPECT_EQ(boost::optional<int>(1), v.next());
   EXPECT_EQ(boost::optional<int>(2), v.next());
   EXPECT_EQ(boost::optional<int>(3), v.next());
