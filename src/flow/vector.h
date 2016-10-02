@@ -7,16 +7,17 @@
 
 namespace latticeflow {
 
-template <typename T>
-class Vector : public Operator<T> {
+template <typename... Ts>
+class Vector : public Operator<Ts...> {
  public:
-  explicit Vector(const std::vector<T>& xs) : xs_(xs), it_(xs_.begin()) {}
-  Vector(const Vector<T>& v) = delete;
-  Vector& operator=(const Vector<T>& v) = delete;
+  explicit Vector(const std::vector<std::tuple<Ts...>>& xs)
+      : xs_(xs), it_(xs_.begin()) {}
+  Vector(const Vector<Ts...>&) = delete;
+  Vector& operator=(const Vector<Ts...>&) = delete;
 
-  boost::optional<T> next() override {
+  boost::optional<std::tuple<Ts...>> next() override {
     if (it_ != xs_.end()) {
-      boost::optional<T> o(*it_);
+      boost::optional<std::tuple<Ts...>> o(*it_);
       it_++;
       return o;
     } else {
@@ -27,8 +28,8 @@ class Vector : public Operator<T> {
   void reset() override { it_ = xs_.begin(); }
 
  private:
-  std::vector<T> xs_;
-  typename std::vector<T>::iterator it_;
+  std::vector<std::tuple<Ts...>> xs_;
+  typename std::vector<std::tuple<Ts...>>::iterator it_;
 };
 
 }  // namespace latticeflow

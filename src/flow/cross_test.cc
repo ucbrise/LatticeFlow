@@ -7,33 +7,24 @@
 #include "boost/optional.hpp"
 #include "gtest/gtest.h"
 
+#include "flow/template_helpers.h"
 #include "flow/vector.h"
 
 namespace latticeflow {
 
-using optional_pair = boost::optional<std::pair<int, std::string>>;
-
 TEST(Cross, SimpleCross) {
-  Vector<int> left({1, 2, 3});
-  Vector<std::string> right({"a", "b"});
-  Cross<int, std::string> crossed(&left, &right);
+  using tuple = std::tuple<int, std::string>;
+  Vector<int> l({1, 2, 3});
+  Vector<std::string> r({"a", "b"});
+  Cross<left<int>, right<std::string>> crossed(&l, &r);
 
-  EXPECT_EQ(optional_pair(std::make_pair(1, "a")), crossed.next());
-  EXPECT_EQ(optional_pair(std::make_pair(1, "b")), crossed.next());
-  EXPECT_EQ(optional_pair(std::make_pair(2, "a")), crossed.next());
-  EXPECT_EQ(optional_pair(std::make_pair(2, "b")), crossed.next());
-  EXPECT_EQ(optional_pair(std::make_pair(3, "a")), crossed.next());
-  EXPECT_EQ(optional_pair(std::make_pair(3, "b")), crossed.next());
-  EXPECT_EQ(optional_pair(), crossed.next());
-
-  crossed.reset();
-  EXPECT_EQ(optional_pair(std::make_pair(1, "a")), crossed.next());
-  EXPECT_EQ(optional_pair(std::make_pair(1, "b")), crossed.next());
-  EXPECT_EQ(optional_pair(std::make_pair(2, "a")), crossed.next());
-  EXPECT_EQ(optional_pair(std::make_pair(2, "b")), crossed.next());
-  EXPECT_EQ(optional_pair(std::make_pair(3, "a")), crossed.next());
-  EXPECT_EQ(optional_pair(std::make_pair(3, "b")), crossed.next());
-  EXPECT_EQ(optional_pair(), crossed.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(1, "a")), crossed.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(1, "b")), crossed.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(2, "a")), crossed.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(2, "b")), crossed.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(3, "a")), crossed.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(3, "b")), crossed.next());
+  EXPECT_EQ(boost::optional<tuple>(), crossed.next());
 }
 
 }  // namespace latticeflow

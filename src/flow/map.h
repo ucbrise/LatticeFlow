@@ -4,19 +4,24 @@
 #include <functional>
 
 #include "flow/operator.h"
+#include "flow/template_helpers.h"
 
 namespace latticeflow {
 
-template <typename A, typename B>
-class Map : public Operator<B> {
- public:
-  Map(Operator<A>* const child, std::function<B(const A&)> f)
-      : child_(child), f_(f) {}
-  Map(const Map<A, B>& v) = delete;
-  Map& operator=(const Map<A, B>& v) = delete;
+template <typename From, typename To>
+class Map {};
 
-  boost::optional<B> next() override {
-    boost::optional<A> x = child_->next();
+template <typename... Froms, typename... Tos>
+class Map<from<Froms...>, to<Tos...>> : public Operator<Tos...> {
+ public:
+  Map(Operator<Froms...>* const child,
+      std::function<std::tuple<Tos...>(const std::tuple<Froms...>&)> f)
+      : child_(child), f_(f) {}
+  Map(const Map<from<Froms...>, to<Tos...>>&) = delete;
+  Map& operator=(const Map<from<Froms...>, to<Tos...>>&) = delete;
+
+  boost::optional<std::tuple<Tos...>> next() override {
+    boost::optional<std::tuple<Froms...>> x = child_->next();
     if (x) {
       return f_(*x);
     } else {
@@ -27,8 +32,8 @@ class Map : public Operator<B> {
   void reset() override { child_->reset(); }
 
  private:
-  Operator<A>* const child_;
-  std::function<B(const A&)> f_;
+  Operator<Froms...>* const child_;
+  std::function<std::tuple<Tos...>(const std::tuple<Froms...>&)> f_;
 };
 
 }  // namespace latticeflow

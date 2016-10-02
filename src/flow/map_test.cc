@@ -6,27 +6,33 @@
 #include "boost/optional.hpp"
 #include "gtest/gtest.h"
 
+#include "flow/template_helpers.h"
 #include "flow/vector.h"
 
 namespace latticeflow {
 
-std::string f(const int& x) { return "foo" + std::to_string(x * 2); }
+std::tuple<int, std::string> f(const std::tuple<int>& t) {
+  int x = std::get<0>(t);
+  return std::make_tuple(x, std::to_string(x));
+}
 
 TEST(Map, SimpleMap) {
+  using tuple = std::tuple<int, std::string>;
   Vector<int> v({1, 2, 3, 4});
-  Map<int, std::string> mapped(&v, f);
-  EXPECT_EQ(boost::optional<std::string>("foo2"), mapped.next());
-  EXPECT_EQ(boost::optional<std::string>("foo4"), mapped.next());
-  EXPECT_EQ(boost::optional<std::string>("foo6"), mapped.next());
-  EXPECT_EQ(boost::optional<std::string>("foo8"), mapped.next());
-  EXPECT_EQ(boost::optional<std::string>(), mapped.next());
+  Map<from<int>, to<int, std::string>> mapped(&v, f);
+
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(1, "1")), mapped.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(2, "2")), mapped.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(3, "3")), mapped.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(4, "4")), mapped.next());
+  EXPECT_EQ(boost::optional<tuple>(), mapped.next());
 
   mapped.reset();
-  EXPECT_EQ(boost::optional<std::string>("foo2"), mapped.next());
-  EXPECT_EQ(boost::optional<std::string>("foo4"), mapped.next());
-  EXPECT_EQ(boost::optional<std::string>("foo6"), mapped.next());
-  EXPECT_EQ(boost::optional<std::string>("foo8"), mapped.next());
-  EXPECT_EQ(boost::optional<std::string>(), mapped.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(1, "1")), mapped.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(2, "2")), mapped.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(3, "3")), mapped.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(4, "4")), mapped.next());
+  EXPECT_EQ(boost::optional<tuple>(), mapped.next());
 }
 
 }  // namespace latticeflow

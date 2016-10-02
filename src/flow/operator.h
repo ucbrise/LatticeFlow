@@ -1,14 +1,16 @@
 #ifndef FLOW_OPERATOR_H_
 #define FLOW_OPERATOR_H_
 
+#include <tuple>
+
 #include "boost/optional.hpp"
 
 namespace latticeflow {
 
-template <typename T>
+template <typename... Ts>
 class Operator {
  public:
-  virtual boost::optional<T> next() = 0;
+  virtual boost::optional<std::tuple<Ts...>> next() = 0;
   virtual void reset() = 0;
 };
 

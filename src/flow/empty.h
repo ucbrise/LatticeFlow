@@ -5,14 +5,14 @@
 
 namespace latticeflow {
 
-template <typename T>
-class Empty : public Operator<T> {
+template <typename... Ts>
+class Empty : public Operator<Ts...> {
  public:
   Empty() = default;
-  Empty(const Empty<T>& v) = delete;
-  Empty& operator=(const Empty<T>& v) = delete;
+  Empty(const Empty<Ts...>&) = delete;
+  Empty& operator=(const Empty<Ts...>&) = delete;
 
-  boost::optional<T> next() override { return {}; }
+  boost::optional<std::tuple<Ts...>> next() override { return {}; }
 
   void reset() override {}
 };

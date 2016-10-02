@@ -7,16 +7,17 @@
 
 namespace latticeflow {
 
-template <typename T>
-class Filter : public Operator<T> {
+template <typename... Ts>
+class Filter : public Operator<Ts...> {
  public:
-  Filter(Operator<T>* const child, std::function<bool(const T&)> filter)
+  Filter(Operator<Ts...>* const child,
+         std::function<bool(const std::tuple<Ts...>&)> filter)
       : child_(child), filter_(filter) {}
-  Filter(const Filter<T>& v) = delete;
-  Filter& operator=(const Filter<T>& v) = delete;
+  Filter(const Filter<Ts...>&) = delete;
+  Filter& operator=(const Filter<Ts...>&) = delete;
 
-  boost::optional<T> next() override {
-    boost::optional<T> x = child_->next();
+  boost::optional<std::tuple<Ts...>> next() override {
+    boost::optional<std::tuple<Ts...>> x = child_->next();
     while (x) {
       if (filter_(*x)) {
         return x;
@@ -29,8 +30,8 @@ class Filter : public Operator<T> {
   void reset() override { child_->reset(); }
 
  private:
-  Operator<T>* const child_;
-  std::function<bool(const T&)> filter_;
+  Operator<Ts...>* const child_;
+  std::function<bool(const std::tuple<Ts...>&)> filter_;
 };
 
 }  // namespace latticeflow
