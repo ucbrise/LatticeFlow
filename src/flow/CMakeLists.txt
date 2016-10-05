@@ -1,8 +1,11 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 CREATE_TEST(cross_test)
-TARGET_LINK_LIBRARIES(cross_test boost_context)
 CREATE_TEST(empty_test)
 CREATE_TEST(filter_test)
 CREATE_TEST(map_test)
+CREATE_TEST(naive_equijoin_test)
 CREATE_TEST(vector_test)
+
+TARGET_LINK_LIBRARIES(cross_test boost_context)
+TARGET_LINK_LIBRARIES(naive_equijoin_test boost_context)
