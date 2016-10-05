@@ -1,5 +1,5 @@
-#ifndef MAP_VECTOR_H_
-#define MAP_VECTOR_H_
+#ifndef FLOW_MAP_H_
+#define FLOW_MAP_H_
 
 #include <functional>
 
@@ -38,4 +38,4 @@ class Map<from<Froms...>, to<Tos...>> : public Operator<Tos...> {
 
 }  // namespace latticeflow
 
-#endif  // MAP_VECTOR_H_
+#endif  // FLOW_MAP_H_
