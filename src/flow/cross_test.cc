@@ -25,6 +25,15 @@ TEST(Cross, SimpleCross) {
   EXPECT_EQ(boost::optional<tuple>(std::make_tuple(3, "a")), crossed.next());
   EXPECT_EQ(boost::optional<tuple>(std::make_tuple(3, "b")), crossed.next());
   EXPECT_EQ(boost::optional<tuple>(), crossed.next());
+
+  crossed.reset();
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(1, "a")), crossed.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(1, "b")), crossed.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(2, "a")), crossed.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(2, "b")), crossed.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(3, "a")), crossed.next());
+  EXPECT_EQ(boost::optional<tuple>(std::make_tuple(3, "b")), crossed.next());
+  EXPECT_EQ(boost::optional<tuple>(), crossed.next());
 }
 
 }  // namespace latticeflow

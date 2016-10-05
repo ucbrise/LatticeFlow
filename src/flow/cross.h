@@ -1,10 +1,7 @@
 #ifndef FLOW_CROSS_H_
 #define FLOW_CROSS_H_
 
-#include <memory>
 #include <utility>
-
-#include <boost/coroutine2/all.hpp>
 
 #include "flow/coroutine_operator.h"
 #include "flow/operator.h"
