@@ -1,5 +1,5 @@
-#ifndef FLOW_VECTOR_H_
-#define FLOW_VECTOR_H_
+#ifndef FLOW_FILTER_H_
+#define FLOW_FILTER_H_
 
 #include <functional>
 
@@ -36,4 +36,4 @@ class Filter : public Operator<Ts...> {
 
 }  // namespace latticeflow
 
-#endif  // FLOW_VECTOR_H_
+#endif  // FLOW_FILTER_H_
