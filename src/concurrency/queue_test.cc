@@ -1,7 +1,5 @@
 #include "concurrency/queue.h"
 
-#include <queue>
-
 #include "gtest/gtest.h"
 
 namespace latticeflow {
@@ -10,14 +8,12 @@ TEST(Queue, SimpleQueue) {
   Queue<int> q;
   q.push(1);
   EXPECT_EQ(1, q.pop());
+  q.push(2);
+  EXPECT_EQ(2, q.try_pop());
 }
 
 TEST(Queue, ComplexQueue) {
-  std::queue<int> xs;
-  for (const int i : {1, 2, 3, 4, 5}) {
-    xs.push(i);
-  }
-  Queue<int> q(xs);
+  Queue<int> q({1, 2, 3, 4, 5});
 
   for (int i = 1; i <= 5; ++i) {
     EXPECT_EQ(i, q.pop());
@@ -30,8 +26,16 @@ TEST(Queue, ComplexQueue) {
 
   for (int i = 1; i <= 100; ++i) {
     q.push(i);
+    EXPECT_EQ(i, q.try_pop());
   }
 
+  for (int i = 1; i <= 100; ++i) {
+    q.push(i);
+  }
+  q.clear();
+  for (int i = 1; i <= 100; ++i) {
+    q.push(i);
+  }
   for (int i = 1; i <= 100; ++i) {
     EXPECT_EQ(i, q.pop());
   }

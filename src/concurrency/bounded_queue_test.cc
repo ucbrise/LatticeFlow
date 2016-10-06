@@ -20,8 +20,16 @@ TEST(BoundedQueue, BoundedComplexQueue) {
 
   for (int i = 1; i <= 100; ++i) {
     q.push(i);
+    EXPECT_EQ(i, q.try_pop());
   }
 
+  for (int i = 1; i <= 100; ++i) {
+    q.push(i);
+  }
+  q.clear();
+  for (int i = 1; i <= 100; ++i) {
+    q.push(i);
+  }
   for (int i = 1; i <= 100; ++i) {
     EXPECT_EQ(i, q.pop());
   }
