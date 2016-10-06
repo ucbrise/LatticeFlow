@@ -35,15 +35,11 @@ class Cross<left<Lefts...>, right<Rights...>>
   using push_type = typename CoroutineOperator<Lefts..., Rights...>::push_type;
 
   void YieldNext(push_type& yield) override {
-    boost::optional<std::tuple<Lefts...>> left_val = left_->next();
-    while (left_val) {
-      right_->reset();
-      boost::optional<std::tuple<Rights...>> right_val = right_->next();
-      while (right_val) {
-        yield(std::tuple_cat(*left_val, *right_val));
-        right_val = right_->next();
+    for (auto l = left_->next(); l; l = left_->next()) {
+      for (auto r = right_->next(); r; r = right_->next()) {
+        yield(std::tuple_cat(*l, *r));
       }
-      left_val = left_->next();
+      right_->reset();
     }
   }
 
