@@ -9,3 +9,5 @@ CREATE_TEST(vector_test)
 
 TARGET_LINK_LIBRARIES(cross_test boost_context)
 TARGET_LINK_LIBRARIES(naive_equijoin_test boost_context)
+
+CREATE_BENCHMARK(filter_bench)

@@ -11,4 +11,3 @@ MACRO(CREATE_TEST NAME)
         pthread
     )
 ENDMACRO(CREATE_TEST)
-
