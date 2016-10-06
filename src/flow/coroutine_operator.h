@@ -1,5 +1,5 @@
-#ifndef FCOROUTINE_LOW_OPERATOR_H_
-#define FCOROUTINE_LOW_OPERATOR_H_
+#ifndef FLOW_COROUTINE_OPERATOR_H_
+#define FLOW_COROUTINE_OPERATOR_H_
 
 #include <memory>
 #include <tuple>
