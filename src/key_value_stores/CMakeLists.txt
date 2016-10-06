@@ -8,6 +8,7 @@ PROTOBUF_GENERATE_CPP(PROTO_SRC PROTO_HEADER message.proto)
 
 # The library dependencies of the key value store clients and servers.
 SET(KV_LIBRARY_DEPENDENCIES
+    concurrency
     protobuf
     pthread
     tbb
@@ -17,7 +18,6 @@ SET(KV_LIBRARY_DEPENDENCIES
 # The source dependencies of the key value store clients and servers.
 SET(KV_SRC_DEPENDENCIES
     ${PROTO_SRC}
-    barrier.cc
     util.cc
     zmq_util.cc
 )

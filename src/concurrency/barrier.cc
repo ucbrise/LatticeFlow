@@ -1,4 +1,4 @@
-#include "key_value_stores/barrier.h"
+#include "concurrency/barrier.h"
 
 void Barrier::enter() {
   std::unique_lock<std::mutex> lock(m_);

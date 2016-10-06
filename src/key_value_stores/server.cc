@@ -10,7 +10,7 @@
 
 #include <zmq.hpp>
 
-#include "key_value_stores/barrier.h"
+#include "concurrency/barrier.h"
 #include "key_value_stores/message.pb.h"
 #include "key_value_stores/util.h"
 #include "key_value_stores/zmq_util.h"

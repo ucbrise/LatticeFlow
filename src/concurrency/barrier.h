@@ -1,5 +1,5 @@
-#ifndef KEY_VALUE_STORES_BARRIER_H_
-#define KEY_VALUE_STORES_BARRIER_H_
+#ifndef CONCURRENCY_BARRIER_H_
+#define CONCURRENCY_BARRIER_H_
 
 #include <condition_variable>
 #include <mutex>
@@ -40,4 +40,4 @@ class Barrier {
   std::condition_variable all_done_;
 };
 
-#endif  // KEY_VALUE_STORES_BARRIER_H_
+#endif  // CONCURRENCY_BARRIER_H_
