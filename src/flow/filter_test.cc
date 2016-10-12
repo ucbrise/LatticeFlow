@@ -6,13 +6,14 @@
 #include "boost/optional.hpp"
 #include "gtest/gtest.h"
 
-#include "flow/vector.h"
+#include "flow/iterator.h"
 
 namespace latticeflow {
 
 TEST(Filter, SimpleFilter) {
   using tuple = std::tuple<int>;
-  Vector<int> v({{1}, {2}, {3}, {4}, {5}, {6}, {7}});
+  std::vector<tuple> xs = {{1}, {2}, {3}, {4}, {5}, {6}, {7}};
+  Iterator<std::vector<tuple>::iterator, int> v(std::begin(xs), std::end(xs));
   Filter<int> evens(&v, [](const tuple& x) { return std::get<0>(x) % 2 == 0; });
 
   EXPECT_EQ(boost::optional<tuple>(std::make_tuple(2)), evens.next());
@@ -29,8 +30,10 @@ TEST(Filter, SimpleFilter) {
 
 TEST(Filter, ComplexFilter) {
   using tuple = std::tuple<int, char>;
-  Vector<int, char> v(
-      {{1, 'a'}, {2, 'b'}, {3, 'c'}, {4, 'd'}, {5, 'e'}, {6, 'f'}, {7, 'g'}});
+  std::vector<tuple> xs = {{1, 'a'}, {2, 'b'}, {3, 'c'}, {4, 'd'},
+                           {5, 'e'}, {6, 'f'}, {7, 'g'}};
+  Iterator<std::vector<tuple>::iterator, int, char> v(std::begin(xs),
+                                                      std::end(xs));
   Filter<int, char> filtered(&v, [](const tuple& x) {
     return std::get<0>(x) % 2 == 0 && std::get<1>(x) != 'd';
   });

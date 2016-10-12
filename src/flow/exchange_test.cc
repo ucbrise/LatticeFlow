@@ -5,13 +5,14 @@
 #include "boost/optional.hpp"
 #include "gtest/gtest.h"
 
-#include "flow/vector.h"
+#include "flow/iterator.h"
 
 namespace latticeflow {
 
 TEST(Exchange, SimplExchange) {
   using tuple = std::tuple<int>;
-  Vector<int> v({{1}, {2}, {3}});
+  std::vector<tuple> xs = {{1}, {2}, {3}};
+  Iterator<decltype(xs)::iterator, int> v(std::begin(xs), std::end(xs));
   Exchange<int> exchange(&v);
 
   EXPECT_EQ(boost::optional<tuple>(std::make_tuple(1)), exchange.next());

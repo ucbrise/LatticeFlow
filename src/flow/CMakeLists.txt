@@ -7,7 +7,6 @@ CREATE_TEST(filter_test)
 CREATE_TEST(iterator_test)
 CREATE_TEST(map_test)
 CREATE_TEST(naive_equijoin_test)
-CREATE_TEST(vector_test)
 
 TARGET_LINK_LIBRARIES(cross_test boost_context)
 TARGET_LINK_LIBRARIES(naive_equijoin_test boost_context)

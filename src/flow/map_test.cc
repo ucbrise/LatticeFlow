@@ -6,8 +6,8 @@
 #include "boost/optional.hpp"
 #include "gtest/gtest.h"
 
+#include "flow/iterator.h"
 #include "flow/template_helpers.h"
-#include "flow/vector.h"
 
 namespace latticeflow {
 
@@ -18,7 +18,9 @@ std::tuple<int, std::string> f(const std::tuple<int>& t) {
 
 TEST(Map, SimpleMap) {
   using tuple = std::tuple<int, std::string>;
-  Vector<int> v({1, 2, 3, 4});
+  std::vector<std::tuple<int>> xs = {{1}, {2}, {3}, {4}};
+  Iterator<std::vector<std::tuple<int>>::iterator, int> v(std::begin(xs),
+                                                          std::end(xs));
   Map<from<int>, to<int, std::string>> mapped(&v, f);
 
   EXPECT_EQ(boost::optional<tuple>(std::make_tuple(1, "1")), mapped.next());

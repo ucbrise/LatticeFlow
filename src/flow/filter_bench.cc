@@ -6,7 +6,7 @@
 
 #include "benchmark/benchmark.h"
 
-#include "flow/vector.h"
+#include "flow/iterator.h"
 
 namespace latticeflow {
 
@@ -15,7 +15,7 @@ void TrueFilter(benchmark::State& state) {
     state.PauseTiming();
     std::vector<std::tuple<int, int>> xs(state.range_x());
     std::iota(std::begin(xs), std::end(xs), 0);
-    Vector<int, int> v(xs);
+    Iterator<decltype(xs)::iterator, int, int> v(std::begin(xs), std::end(xs));
     Filter<int, int> f(&v, [](const std::tuple<int, int>&) { return true; });
     state.ResumeTiming();
     for (auto t = f.next(); t; t = f.next()) {
