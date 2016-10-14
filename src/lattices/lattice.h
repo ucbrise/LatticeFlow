@@ -38,16 +38,16 @@ namespace latticeflow {
 template <typename L, typename T>
 class Lattice {
  public:
+  // The type of the lattice. Being able to access this type comes in handy
+  // when doing a bit of metaprogramming. See the static_asserts in
+  // pair_lattice.h for an example.
+  using lattice_type = T;
+
   // Returns an element of the semilattice.
   virtual const T& get() const = 0;
 
   // Joins another instance of the semilattice into this one.
   virtual void join(const L& other) = 0;
-
-  // The type of the lattice. Being able to access this type comes in handy
-  // when doing a bit of metaprogramming. See the static_asserts in
-  // pair_lattice.h for an example.
-  using lattice_type = T;
 };
 
 }  // namespace latticeflow
