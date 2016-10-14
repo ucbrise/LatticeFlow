@@ -15,8 +15,8 @@ class SetUnionLattice
  public:
   SetUnionLattice() = default;
   explicit SetUnionLattice(const std::unordered_set<T>& xs) : xs_(xs) {}
-  SetUnionLattice(const SetUnionLattice<T>& l) = delete;
-  SetUnionLattice& operator=(const SetUnionLattice<T>& l) = delete;
+  SetUnionLattice(const SetUnionLattice<T>& l) = default;
+  SetUnionLattice& operator=(const SetUnionLattice<T>& l) = default;
 
   const std::unordered_set<T>& get() const override { return xs_; }
 

@@ -24,8 +24,8 @@ class ArrayLattice : public Lattice<ArrayLattice<T, N>, std::array<T, N>> {
  public:
   ArrayLattice() = default;
   explicit ArrayLattice(std::array<T, N> xs) : xs_(xs) {}
-  ArrayLattice(const ArrayLattice<T, N>& l) = delete;
-  ArrayLattice& operator=(const ArrayLattice<T, N>& l) = delete;
+  ArrayLattice(const ArrayLattice<T, N>& l) = default;
+  ArrayLattice& operator=(const ArrayLattice<T, N>& l) = default;
 
   const std::array<T, N>& get() const override { return xs_; }
 

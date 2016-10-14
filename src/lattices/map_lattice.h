@@ -34,8 +34,8 @@ class MapLattice : public Lattice<MapLattice<K, V>, std::unordered_map<K, V>> {
 
  public:
   MapLattice() = default;
-  MapLattice(const MapLattice<K, V>& l) = delete;
-  MapLattice& operator=(const MapLattice<K, V>& l) = delete;
+  MapLattice(const MapLattice<K, V>& l) = default;
+  MapLattice& operator=(const MapLattice<K, V>& l) = default;
 
   const std::unordered_map<K, V>& get() const override { return kvs_; }
 

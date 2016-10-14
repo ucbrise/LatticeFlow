@@ -40,8 +40,8 @@ class VectorLattice : public Lattice<VectorLattice<T>, std::vector<T>> {
  public:
   VectorLattice() = default;
   explicit VectorLattice(std::initializer_list<T> xs) : xs_(xs) {}
-  VectorLattice(const VectorLattice<T>& l) = delete;
-  VectorLattice& operator=(const VectorLattice<T>& l) = delete;
+  VectorLattice(const VectorLattice<T>& l) = default;
+  VectorLattice& operator=(const VectorLattice<T>& l) = default;
 
   const std::vector<T>& get() const override { return xs_; }
 

@@ -35,8 +35,8 @@ class PairLattice : public Lattice<PairLattice<L, R>, std::pair<L, R>> {
  public:
   PairLattice() = default;
   PairLattice(const L& l, const R& r) : p_(l, r) {}
-  PairLattice(const PairLattice<L, R>& l) = delete;
-  PairLattice& operator=(const PairLattice<L, R>& l) = delete;
+  PairLattice(const PairLattice<L, R>& l) = default;
+  PairLattice& operator=(const PairLattice<L, R>& l) = default;
 
   const std::pair<L, R>& get() const override { return p_; }
   void join(const PairLattice<L, R>& l) override {
