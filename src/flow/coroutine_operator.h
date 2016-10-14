@@ -18,7 +18,7 @@ class CoroutineOperator : public Operator<Ts...> {
   // TODO(mwhittaker): Document why we can't construct the coroutine_ with the
   // correct lambda yet.
   CoroutineOperator()
-      : coroutine_([this](push_type& yield) {}),
+      : coroutine_([this](push_type&) {}),
         coroutine_iterator_(begin(coroutine_)) {}
 
   boost::optional<std::tuple<Ts...>> next() override {

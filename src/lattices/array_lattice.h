@@ -26,7 +26,7 @@ class ArrayLattice : public Lattice<ArrayLattice<T, N>, std::array<T, N>> {
   const std::array<T, N>& get() const override { return xs_; }
 
   void join(const ArrayLattice<T, N>& l) override {
-    for (int i = 0; i < N; ++i) {
+    for (std::size_t i = 0; i < N; ++i) {
       xs_[i].join(l.xs_[i]);
     }
   }

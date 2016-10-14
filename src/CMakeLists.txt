@@ -8,14 +8,19 @@ SET(LATTICEFLOW_VERSION_PATCH 0)
 INCLUDE(cmake/benchmarking.cmake NO_POLICY_SCOPE)
 INCLUDE(cmake/testing.cmake NO_POLICY_SCOPE)
 
+SET(CMAKE_CXX_FLAGS_COMMON
+    "-std=c++11 \
+    -stdlib=libc++ \
+    -Wall \
+    -Wextra \
+    -Werror")
 SET(CMAKE_CXX_FLAGS_DEBUG
     "${CMAKE_CXX_FLAGS_DEBUG} \
-    -std=c++11 \
-    -stdlib=libc++")
+    ${CMAKE_CXX_FLAGS_COMMON}")
 SET(CMAKE_CXX_FLAGS_RELEASE
     "${CMAKE_CXX_FLAGS_RELEASE} \
-    -std=c++11 \
-    -stdlib=libc++")
+    ${CMAKE_CXX_FLAGS_COMMON}
+    -O3")
 
 ADD_SUBDIRECTORY(vendor/boost)
 ADD_SUBDIRECTORY(vendor/googlebenchmark)

@@ -42,7 +42,7 @@ class VectorLattice : public Lattice<VectorLattice<T>, std::vector<T>> {
   const std::vector<T>& get() const override { return xs_; }
 
   void join(const VectorLattice<T>& l) override {
-    for (int i = 0; i < std::min(xs_.size(), l.xs_.size()); ++i) {
+    for (std::size_t i = 0; i < std::min(xs_.size(), l.xs_.size()); ++i) {
       xs_[i].join(l.xs_[i]);
     }
     if (xs_.size() < l.xs_.size()) {
