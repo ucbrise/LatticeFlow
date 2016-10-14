@@ -1,6 +1,8 @@
 #ifndef LATTICES_LATTICE_H_
 #define LATTICES_LATTICE_H_
 
+#include <type_traits>
+
 namespace latticeflow {
 
 // Consider a partially ordered set (S, <=). An *upper bound* z of two elements
@@ -49,6 +51,31 @@ class Lattice {
   // Joins another instance of the semilattice into this one.
   virtual void join(const L& other) = 0;
 };
+
+// Returns whether `l == r` according to the partial order of the lattice.
+template <typename T>
+typename std::enable_if<
+    std::is_base_of<Lattice<T, typename T::lattice_type>, T>::value, bool>::type
+operator==(const T& l, const T& r) {
+  return l.get() == r.get();
+}
+
+// Returns whether `l != r` according to the partial order of the lattice.
+template <typename T>
+typename std::enable_if<
+    std::is_base_of<Lattice<T, typename T::lattice_type>, T>::value, bool>::type
+operator!=(const T& l, const T& r) {
+  return l.get() != r.get();
+}
+
+// Returns true if `l <= r` according to the partial order of the lattice.
+template <typename T>
+typename std::enable_if<
+    std::is_base_of<Lattice<T, typename T::lattice_type>, T>::value, bool>::type
+operator<=(T l, const T& r) {
+  l.join(r);
+  return l.get() == r.get();
+}
 
 }  // namespace latticeflow
 

@@ -29,6 +29,19 @@ TEST(BoolBoolLattice, Basics) {
   EXPECT_EQ(false, std::get<1>(p2.get()).get());
 }
 
+TEST(BoolBoolLattice, Comparisons) {
+  BoolOrLattice x1(true);
+  BoolAndLattice y1(false);
+  BoolOrLattice x2(false);
+  BoolAndLattice y2(true);
+  BoolBoolLattice p1(x1, y1);
+  BoolBoolLattice p2(x2, y2);
+
+  EXPECT_FALSE(p1 == p2);
+  EXPECT_TRUE(p1 != p2);
+  EXPECT_FALSE(p1 <= p2);
+}
+
 }  // namespace latticeflow
 
 int main(int argc, char** argv) {
