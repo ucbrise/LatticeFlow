@@ -9,7 +9,7 @@ ThreadPool::ThreadPool(const int num_threads) {
 }
 
 ThreadPool::~ThreadPool() {
-  for (int i = 0; i < threads_.size(); ++i) {
+  for (std::size_t i = 0; i < threads_.size(); ++i) {
     work_.push({});
   }
   for (std::thread& t : threads_) {

@@ -10,7 +10,7 @@
 template <typename T>
 class BoundedQueue {
  public:
-  BoundedQueue(int capacity) : capacity_(capacity) {
+  BoundedQueue(std::size_t capacity) : capacity_(capacity) {
     // TODO(mwhittaker): Assert that capacity_ > 0;
   }
   BoundedQueue(const BoundedQueue&) = delete;
@@ -56,7 +56,7 @@ class BoundedQueue {
 
  private:
   std::vector<T> xs_;
-  const int capacity_;
+  const std::size_t capacity_;
   std::mutex m_;
   std::condition_variable data_available_;
   std::condition_variable space_available_;

@@ -13,8 +13,8 @@ using BoolArrayLattice = ArrayLattice<BoolOrLattice, 3>;
 TEST(BoolArrayLattice, Basics) {
   BoolOrLattice tru(true);
   BoolOrLattice fls(false);
-  BoolArrayLattice x(std::array<BoolOrLattice, 3>({tru, tru, fls}));
-  BoolArrayLattice y(std::array<BoolOrLattice, 3>({tru, fls, fls}));
+  BoolArrayLattice x(std::array<BoolOrLattice, 3>({{tru, tru, fls}}));
+  BoolArrayLattice y(std::array<BoolOrLattice, 3>({{tru, fls, fls}}));
 
   EXPECT_EQ(tru, std::get<0>(x.get()));
   EXPECT_EQ(tru, std::get<1>(x.get()));

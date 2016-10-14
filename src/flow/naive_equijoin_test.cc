@@ -7,15 +7,19 @@
 #include "boost/optional.hpp"
 #include "gtest/gtest.h"
 
+#include "flow/iterator.h"
 #include "flow/template_helpers.h"
-#include "flow/vector.h"
 
 namespace latticeflow {
 
 TEST(NaiveEquijoin, SimpleNaiveEquijoin) {
   using tuple = std::tuple<int, bool, int, char>;
-  Vector<int, bool> l({{1, true}, {2, false}, {2, true}, {3, true}});
-  Vector<int, char> r({{2, 'a'}, {2, 'b'}, {3, 'c'}, {4, 'd'}});
+  std::vector<std::tuple<int, bool>> ls = {
+      {1, true}, {2, false}, {2, true}, {3, true}};
+  std::vector<std::tuple<int, char>> rs = {
+      {2, 'a'}, {2, 'b'}, {3, 'c'}, {4, 'd'}};
+  Iterator<decltype(ls)::iterator, int, bool> l(std::begin(ls), std::end(ls));
+  Iterator<decltype(rs)::iterator, int, char> r(std::begin(rs), std::end(rs));
   NaiveEquijoin<left<int, bool>, right<int, char>, 0, 0> joined(&l, &r);
 
   EXPECT_EQ(boost::optional<tuple>(std::make_tuple(2, false, 2, 'a')),
