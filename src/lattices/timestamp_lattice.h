@@ -1,6 +1,7 @@
 #ifndef LATTICES_TIMESTAMP_LATTICE_H_
 #define LATTICES_TIMESTAMP_LATTICE_H_
 
+#include <type_traits>
 #include <utility>
 
 #include "lattices/lattice.h"
@@ -27,6 +28,14 @@ namespace latticeflow {
 template <typename Timestamp, typename L>
 class TimestampLattice
     : public Lattice<TimestampLattice<Timestamp, L>, std::pair<Timestamp, L>> {
+  static_assert(
+      std::is_base_of<Lattice<Timestamp, typename Timestamp::lattice_type>,
+                      Timestamp>::value,
+      "Timestamp type of TimestampLattice does not inherit from Lattice.");
+  static_assert(
+      std::is_base_of<Lattice<L, typename L::lattice_type>, L>::value,
+      "Value type of TimestampLattice does not inherit from Lattice.");
+
  public:
   TimestampLattice() = default;
   TimestampLattice(const Timestamp& t, const L& x) : p_(t, x) {}

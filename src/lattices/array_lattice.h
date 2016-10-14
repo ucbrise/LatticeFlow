@@ -4,6 +4,7 @@
 #include <array>
 #include <cstddef>
 #include <initializer_list>
+#include <type_traits>
 
 #include "lattices/lattice.h"
 
@@ -17,6 +18,9 @@ namespace latticeflow {
 // That is, array semillatices are merged pairwise.
 template <typename T, std::size_t N>
 class ArrayLattice : public Lattice<ArrayLattice<T, N>, std::array<T, N>> {
+  static_assert(std::is_base_of<Lattice<T, typename T::lattice_type>, T>::value,
+                "Type of ArrayLattice does not inherit from Lattice.");
+
  public:
   ArrayLattice() = default;
   explicit ArrayLattice(std::array<T, N> xs) : xs_(xs) {}

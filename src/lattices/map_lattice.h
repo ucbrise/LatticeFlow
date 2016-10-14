@@ -1,6 +1,7 @@
 #ifndef LATTICES_MAP_LATTICE_H_
 #define LATTICES_MAP_LATTICE_H_
 
+#include <type_traits>
 #include <unordered_map>
 #include <utility>
 
@@ -28,6 +29,9 @@ namespace latticeflow {
 // 42, "b": 9000, "c": 99}.
 template <typename K, typename V>
 class MapLattice : public Lattice<MapLattice<K, V>, std::unordered_map<K, V>> {
+  static_assert(std::is_base_of<Lattice<V, typename V::lattice_type>, V>::value,
+                "Value type of MapLattice does not inherit from Lattice.");
+
  public:
   MapLattice() = default;
   MapLattice(const MapLattice<K, V>& l) = delete;

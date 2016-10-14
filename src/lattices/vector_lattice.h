@@ -2,6 +2,7 @@
 #define LATTICES_VECTOR_LATTICE_H_
 
 #include <initializer_list>
+#include <type_traits>
 #include <vector>
 
 #include "lattices/lattice.h"
@@ -33,6 +34,9 @@ namespace latticeflow {
 //              // = [false, false, true, false, true]
 template <typename T>
 class VectorLattice : public Lattice<VectorLattice<T>, std::vector<T>> {
+  static_assert(std::is_base_of<Lattice<T, typename T::lattice_type>, T>::value,
+                "Type of VectorLattice does not inherit from Lattice.");
+
  public:
   VectorLattice() = default;
   explicit VectorLattice(std::initializer_list<T> xs) : xs_(xs) {}

@@ -1,6 +1,7 @@
 #ifndef LATTICES_PAIR_LATTICE_H_
 #define LATTICES_PAIR_LATTICE_H_
 
+#include <type_traits>
 #include <utility>
 
 #include "lattices/lattice.h"
@@ -26,6 +27,11 @@ namespace latticeflow {
 //                // = (false, true)
 template <typename L, typename R>
 class PairLattice : public Lattice<PairLattice<L, R>, std::pair<L, R>> {
+  static_assert(std::is_base_of<Lattice<L, typename L::lattice_type>, L>::value,
+                "Left type of PairLattice does not inherit from Lattice.");
+  static_assert(std::is_base_of<Lattice<R, typename R::lattice_type>, R>::value,
+                "Right type of PairLattice does not inherit from Lattice.");
+
  public:
   PairLattice() = default;
   PairLattice(const L& l, const R& r) : p_(l, r) {}
