@@ -1,4 +1,4 @@
-# Key Value Servers
+# Key Value Stores
 This directory includes a generic key-value server and a set of key-value
 clients implemented using the lattices in [`lattices`](../lattices). Each
 key-value client implements one of the weak isolation levels described in
