@@ -11,7 +11,6 @@ SET(KV_LIBRARY_DEPENDENCIES
     concurrency
     protobuf
     pthread
-    tbb
     zmq
 )
 
