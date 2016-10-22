@@ -1,0 +1,12 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+CREATE_NAMED_TEST(pushpull_counter_test counter_test.cc)
+CREATE_NAMED_TEST(pushpull_drop_test drop_test.cc)
+CREATE_NAMED_TEST(pushpull_filter_test filter_test.cc)
+CREATE_NAMED_TEST(pushpull_id_test id_test.cc)
+CREATE_NAMED_TEST(pushpull_if_test if_test.cc)
+CREATE_NAMED_TEST(pushpull_map_test map_test.cc)
+CREATE_NAMED_TEST(pushpull_queue_test queue_test.cc)
+CREATE_NAMED_TEST(pushpull_register_test register_test.cc)
+CREATE_NAMED_TEST(pushpull_round_robin_test round_robin_test.cc)
+CREATE_NAMED_TEST(pushpull_tee_test tee_test.cc)
