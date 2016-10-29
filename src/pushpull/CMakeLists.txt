@@ -1,7 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 CREATE_NAMED_TEST(pushpull_counter_test counter_test.cc)
+CREATE_NAMED_TEST(pushpull_dedup_test dedup_test.cc)
 CREATE_NAMED_TEST(pushpull_drop_test drop_test.cc)
+CREATE_NAMED_TEST(pushpull_dup_test dup_test.cc)
 CREATE_NAMED_TEST(pushpull_filter_test filter_test.cc)
 CREATE_NAMED_TEST(pushpull_id_test id_test.cc)
 CREATE_NAMED_TEST(pushpull_if_test if_test.cc)
