@@ -11,7 +11,7 @@
 
 namespace latticeflow {
 
-template <typename Flow, typename T>
+template <typename Direction, typename T>
 class If;
 
 template <typename T>

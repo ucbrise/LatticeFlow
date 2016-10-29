@@ -11,7 +11,7 @@
 
 namespace latticeflow {
 
-template <typename Flow, typename From, typename To>
+template <typename Direction, typename From, typename To>
 class Map;
 
 template <typename From, typename To>
