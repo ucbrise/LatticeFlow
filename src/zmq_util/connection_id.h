@@ -12,6 +12,8 @@ struct EnvelopedMessage;
 
 class ConnectionId {
  public:
+  ConnectionId Clone();
+
   friend std::ostream& operator<<(std::ostream& out, const ConnectionId& cid);
   friend bool operator<(const ConnectionId& lhs, const ConnectionId& rhs);
 

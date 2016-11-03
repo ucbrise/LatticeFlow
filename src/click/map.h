@@ -2,7 +2,7 @@
 #define CLICK_FILTER_H_
 
 #include <functional>
-#include <utility>
+#include <type_traits>
 
 #include "boost/optional.hpp"
 
@@ -13,12 +13,15 @@
 namespace latticeflow {
 
 template <typename From, typename To, typename F>
-class Map : public Pusher<To> {
+class Map : public Pusher<From> {
  public:
-  explicit Map(F&& f, Pusher<To>* downstream)
+  Map(F&& f, Pusher<To>* downstream)
       : f_(std::forward<F>(f)), downstream_(downstream) {}
 
-  void push(From&& x) override { downstream_->push(f_(std::forward<From>(x))); }
+  void push(From&& x) override {
+    typename std::result_of<F(From &&)>::type y = f_(std::forward<From>(x));
+    downstream_->push(std::forward<To>(y));
+  }
 
  private:
   F f_;
@@ -27,7 +30,7 @@ class Map : public Pusher<To> {
 
 template <typename From, typename To, typename F>
 Map<From, To, F> make_map(F&& f, Pusher<To>* downstream) {
-  return Map<From, To, F>(std::forward<F>(f), downstream);
+  return {std::forward<F>(f), downstream};
 }
 
 }  // namespace latticeflow

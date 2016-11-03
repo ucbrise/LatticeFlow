@@ -12,11 +12,9 @@ namespace latticeflow {
 
 class SocketSend : public Pusher<EnvelopedMessage&&> {
  public:
-  explicit SocketSend(zmq::socket_t* socket) : socket_(socket) {}
+  explicit SocketSend(zmq::socket_t* socket);
 
-  void push(EnvelopedMessage&& e) override {
-    send_enveloped_msg(std::move(e), socket_);
-  }
+  void push(EnvelopedMessage&& e) override;
 
  private:
   zmq::socket_t* socket_;

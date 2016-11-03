@@ -9,8 +9,7 @@ namespace latticeflow {
 
 class SocketRecv : public EventHandler {
  public:
-  SocketRecv(const std::string address, zmq::socket_t* socket,
-             Pusher<EnvelopedMessage&&>* downstream);
+  SocketRecv(zmq::socket_t* socket, Pusher<EnvelopedMessage&&>* downstream);
 
   bool IsOneOff() const override;
   zmq::pollitem_t GetPollitem() override;

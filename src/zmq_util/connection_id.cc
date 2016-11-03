@@ -8,6 +8,14 @@
 
 namespace latticeflow {
 
+ConnectionId ConnectionId::Clone() {
+  std::vector<zmq::message_t> clone(connection_ids_.size());
+  for (std::size_t i = 0; i < clone.size(); ++i) {
+    connection_ids_[i].copy(&clone[i]);
+  }
+  return ConnectionId(std::move(clone));
+}
+
 std::ostream& operator<<(std::ostream& out, const ConnectionId& cid) {
   for (const zmq::message_t& connection_id : cid.connection_ids_) {
     out << connection_id << std::endl;

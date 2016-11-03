@@ -7,11 +7,9 @@
 
 namespace latticeflow {
 
-SocketRecv::SocketRecv(const std::string address, zmq::socket_t* socket,
+SocketRecv::SocketRecv(zmq::socket_t* socket,
                        Pusher<EnvelopedMessage&&>* downstream)
-    : socket_(socket), downstream_(downstream) {
-  socket_->bind(address);
-}
+    : socket_(socket), downstream_(downstream) {}
 
 bool SocketRecv::IsOneOff() const { return false; }
 

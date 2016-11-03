@@ -9,19 +9,10 @@
 
 namespace latticeflow {
 
-template <typename Direction, typename T>
-class Drop;
-
 template <typename T>
-class Drop<Push, T> : public Pusher<T> {
+class Drop : public Pusher<T> {
  public:
-  void push(T) override {}
-};
-
-template <typename T>
-class Drop<Pull, T> : public Puller<T> {
- public:
-  boost::optional<T> pull() override { return {}; }
+  void push(T&&) override {}
 };
 
 }  // namespace latticeflow
