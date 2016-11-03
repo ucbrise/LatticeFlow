@@ -17,6 +17,12 @@ lf::EnvelopedMessage enveloped_id(lf::EnvelopedMessage&& e) {
   return std::move(e);
 }
 
+lf::EnvelopedMessage dup_msg(lf::EnvelopedMessage&& e) {
+  std::string s = lf::message_to_string(std::move(e.msg));
+  e.msg = lf::string_to_message(s + s);
+  return std::move(e);
+}
+
 int main() {
   using EnvMsg = lf::EnvelopedMessage;
 
@@ -25,7 +31,8 @@ int main() {
 
   const std::string address = "tcp://*:5555";
   lf::SocketSend out(&router);
-  auto print = lf::make_map<EnvMsg, EnvMsg&&>(enveloped_id, &out);
+  auto dup = lf::make_map<EnvMsg, EnvMsg&&>(dup_msg, &out);
+  auto print = lf::make_map<EnvMsg, EnvMsg&&>(enveloped_id, &dup);
   lf::SocketRecv in(address, &router, &print);
 
   lf::Driver driver;
