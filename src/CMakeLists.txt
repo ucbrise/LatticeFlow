@@ -13,7 +13,8 @@ SET(CMAKE_CXX_FLAGS_COMMON
     -stdlib=libc++ \
     -Wall \
     -Wextra \
-    -Werror")
+    -Werror \
+    -fsanitize=address")
 SET(CMAKE_CXX_FLAGS_DEBUG
     "${CMAKE_CXX_FLAGS_DEBUG} \
     ${CMAKE_CXX_FLAGS_COMMON}")
@@ -45,3 +46,4 @@ ADD_SUBDIRECTORY(concurrency)
 ADD_SUBDIRECTORY(flow)
 ADD_SUBDIRECTORY(key_value_stores)
 ADD_SUBDIRECTORY(lattices)
+ADD_SUBDIRECTORY(zmq_util)
