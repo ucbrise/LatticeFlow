@@ -4,22 +4,9 @@
 #include <ios>
 
 #include "zmq_util/hexdump.h"
+#include "zmq_util/msg_util.h"
 
 namespace latticeflow {
-
-std::ostream& operator<<(std::ostream& out, const zmq::message_t& msg) {
-  out << HexDump(reinterpret_cast<const unsigned char*>(msg.data()),
-                 msg.size());
-  return out;
-}
-
-std::ostream& operator<<(std::ostream& out, const EnvelopedMessage& e) {
-  for (const zmq::message_t& msg : e.connection_ids) {
-    out << msg << std::endl;
-  }
-  out << e.msg;
-  return out;
-}
 
 std::string message_to_string(const zmq::message_t& message) {
   return std::string(static_cast<const char*>(message.data()), message.size());
@@ -60,12 +47,14 @@ EnvelopedMessage recv_enveloped_msg(zmq::socket_t* socket) {
   assert(msgs.size() >= 2);
   zmq::message_t msg = std::move(msgs.back());
   msgs.pop_back();
-  return {std::move(msgs), std::move(msg)};
+  return {ConnectionId(std::move(msgs)), std::move(msg)};
 }
 
-void send_enveloped_msg(EnvelopedMessage&& e, zmq::socket_t* socket) {
-  e.connection_ids.emplace_back(std::move(e.msg));
-  send_msgs(std::move(e.connection_ids), socket);
+void send_enveloped_msg(EnvelopedMessage&& env, zmq::socket_t* socket) {
+  for (zmq::message_t& msg : env.cid.connection_ids_) {
+    socket->send(msg, ZMQ_SNDMORE);
+  }
+  socket->send(env.msg);
 }
 
 int poll(long timeout, std::vector<zmq::pollitem_t>* items) {

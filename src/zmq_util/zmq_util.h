@@ -9,26 +9,9 @@
 
 #include <zmq.hpp>
 
+#include "zmq_util/enveloped_message.h"
+
 namespace latticeflow {
-
-// Multipart messages in ZeroMQ are often prefixed with a number of connection
-// identities. For example, ROUTER sockets internally maintain a map from
-// connection id to connection. When it receives a message over a connection,
-// it prefixes the received multipart message with the connection id of the
-// connection. An EnvelopedMessage represents an connection id prefixed
-// multipart message. See
-// http://zguide.zeromq.org/page:all#The-Extended-Reply-Envelope for more
-// information.
-struct EnvelopedMessage {
-  std::vector<zmq::message_t> connection_ids;
-  zmq::message_t msg;
-};
-
-// Pretty prints a message.
-std::ostream& operator<<(std::ostream& out, const zmq::message_t& msg);
-
-// Pretty prints an enveloped message.
-std::ostream& operator<<(std::ostream& out, const EnvelopedMessage& e);
 
 // Converts the data within a `zmq::message_t` into a string.
 std::string message_to_string(const zmq::message_t& message);
@@ -46,7 +29,7 @@ void send_msgs(std::vector<zmq::message_t>&& msgs, zmq::socket_t* socket);
 EnvelopedMessage recv_enveloped_msg(zmq::socket_t* socket);
 
 // `send` an enveloped message over the socket.
-void send_enveloped_msg(EnvelopedMessage&& s, zmq::socket_t* socket);
+void send_enveloped_msg(EnvelopedMessage&& emsg, zmq::socket_t* socket);
 
 // `recv` a multipart message.
 std::vector<zmq::message_t> recv_msgs(zmq::socket_t* socket);
