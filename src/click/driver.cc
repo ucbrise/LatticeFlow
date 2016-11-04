@@ -24,7 +24,7 @@ void Driver::Run() {
     while (pollitems_it != std::end(pollitems)) {
       assert(event_handlers_it != std::end(event_handlers));
 
-      if (pollitems_it->events | pollitems_it->revents) {
+      if (pollitems_it->events & pollitems_it->revents) {
         (*event_handlers_it)->Run(*pollitems_it);
         if ((*event_handlers_it)->IsOneOff()) {
           pollitems_it = pollitems.erase(pollitems_it);

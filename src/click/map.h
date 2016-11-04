@@ -6,7 +6,6 @@
 
 #include "boost/optional.hpp"
 
-#include "click/phantoms.h"
 #include "click/puller.h"
 #include "click/pusher.h"
 
