@@ -1,36 +1,27 @@
 #ifndef CLICK_FILTER_H_
 #define CLICK_FILTER_H_
 
-#include <functional>
 #include <type_traits>
 
-#include "boost/optional.hpp"
-
-#include "click/puller.h"
-#include "click/pusher.h"
+#include "click/pushable.h"
 
 namespace latticeflow {
 
+// `Map(f, d).push(x)` performs `d->push(f(x))` where `x` is an lvalue or
+// rvalue reference and is forwarded to `f`. Note that the return of `f` is not
+// owned by the `Map` element, it is moved downstream.
 template <typename From, typename To, typename F>
-class Map : public Pusher<From> {
+class Map : public Pushable<From&&> {
  public:
-  Map(F&& f, Pusher<To>* downstream)
+  Map(F&& f, Pushable<To>* downstream)
       : f_(std::forward<F>(f)), downstream_(downstream) {}
 
-  void push(From&& x) override {
-    typename std::result_of<F(From &&)>::type y = f_(std::forward<From>(x));
-    downstream_->push(std::forward<To>(y));
-  }
+  void push(From&& x) override { downstream_->push(f_(std::forward<From>(x))); }
 
  private:
   F f_;
-  Pusher<To&&>* downstream_;
+  Pushable<To>* downstream_;
 };
-
-template <typename From, typename To, typename F>
-Map<From, To, F> make_map(F&& f, Pusher<To>* downstream) {
-  return {std::forward<F>(f), downstream};
-}
 
 }  // namespace latticeflow
 

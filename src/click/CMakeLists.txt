@@ -19,7 +19,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 ADD_EXECUTABLE(click_example_server
     driver.cc
     example_server.cc
-    socket_recv.cc
     socket_send.cc
 )
 TARGET_LINK_LIBRARIES(click_example_server zmq_util)

@@ -5,16 +5,18 @@
 
 #include "zmq.hpp"
 
-#include "click/pusher.h"
+#include "click/pushable.h"
 #include "zmq_util/zmq_util.h"
 
 namespace latticeflow {
 
-class SocketSend : public Pusher<EnvelopedMessage&&> {
+// A `SocketSend` receives, and takes ownership of, packets and sends them out
+// on a socket.
+class SocketSend : public Pushable<EnvelopedMessage> {
  public:
   explicit SocketSend(zmq::socket_t* socket);
 
-  void push(EnvelopedMessage&& e) override;
+  void push(EnvelopedMessage e) override;
 
  private:
   zmq::socket_t* socket_;

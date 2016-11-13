@@ -8,7 +8,7 @@
 namespace latticeflow {
 
 SocketRecv::SocketRecv(zmq::socket_t* socket,
-                       Pusher<EnvelopedMessage&&>* downstream)
+                       Pushable<EnvelopedMessage&&>* downstream)
     : socket_(socket), downstream_(downstream) {}
 
 bool SocketRecv::IsOneOff() const { return false; }

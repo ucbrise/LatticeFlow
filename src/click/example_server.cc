@@ -5,21 +5,25 @@
 
 #include "zmq.hpp"
 
+#include "click/call.h"
 #include "click/driver.h"
 #include "click/drop.h"
-#include "click/dup.h"
 #include "click/map.h"
 #include "click/socket_recv.h"
 #include "click/socket_send.h"
 #include "click/tee.h"
-#include "zmq_util/hexdump.h"
 #include "zmq_util/zmq_util.h"
+
+// #include "click/dup.h"
+// #include "click/tee.h"
+// #include "zmq_util/hexdump.h"
 
 namespace lf = latticeflow;
 
 using EnvMsg = lf::EnvelopedMessage;
 using CId = lf::ConnectionId;
 
+#if 0
 constexpr int NUM_THREADS = 4;
 
 void double_plus_i(const int i, zmq::context_t* context) {
@@ -59,6 +63,8 @@ lf::EnvelopedMessage&& id_refref_to_refref(lf::EnvelopedMessage&& e) {
   return std::move(e);
 }
 
+#endif
+
 int main() {
   zmq::context_t context(1);
 
@@ -67,6 +73,7 @@ int main() {
   router.bind(router_address);
   std::cout << "Router listening on '" << router_address << "'." << std::endl;
 
+#if 0
   zmq::socket_t source(context, ZMQ_PUSH);
   const std::string source_adress = "tcp://*:5556";
   source.bind(source_adress);
@@ -111,4 +118,24 @@ int main() {
   for (std::thread& thread : threads) {
     thread.join();
   }
+#endif
+  auto f = [](EnvMsg && e) -> EnvMsg&& {
+    std::cout << e << std::endl << std::endl;
+    return std::move(e);
+  };
+
+  // Element graph.
+  lf::SocketSend out(&router);
+
+  lf::Map<EnvMsg&&, EnvMsg, decltype(f)&> print_map(f, &out);
+  lf::Drop<EnvMsg&&> drop;
+  lf::Call<EnvMsg&&, decltype(f)&> print_call(f);
+
+  lf::Tee<EnvMsg&&, EnvMsg&&> tee({&drop, &print_call, &print_map});
+  lf::SocketRecv<EnvMsg&&> in(&router, &tee);
+
+  // Start the driver.
+  lf::Driver driver;
+  driver.RegisterEventHandler(&in);
+  driver.Run();
 }

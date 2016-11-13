@@ -48,7 +48,7 @@ std::vector<zmq::message_t> recv_msgs(zmq::socket_t* socket) {
 
 EnvelopedMessage recv_enveloped_msg(zmq::socket_t* socket) {
   std::vector<zmq::message_t> msgs = recv_msgs(socket);
-  assert(msgs.size() >= 2);
+  assert(msgs.size() > 0);
   zmq::message_t msg = std::move(msgs.back());
   msgs.pop_back();
   return {ConnectionId(std::move(msgs)), std::move(msg)};

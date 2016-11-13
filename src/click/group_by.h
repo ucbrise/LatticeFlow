@@ -15,9 +15,6 @@
 
 namespace latticeflow {
 
-template <typename Direction, typename Group, typename T>
-class GroupBy;
-
 template <typename Group, typename T>
 class GroupBy<Push, Group, T> {
  public:

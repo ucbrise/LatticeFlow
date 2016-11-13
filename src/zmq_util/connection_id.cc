@@ -8,17 +8,22 @@
 
 namespace latticeflow {
 
-ConnectionId ConnectionId::Clone() {
+ConnectionId ConnectionId::Clone() const {
   std::vector<zmq::message_t> clone(connection_ids_.size());
   for (std::size_t i = 0; i < clone.size(); ++i) {
-    connection_ids_[i].copy(&clone[i]);
+    clone[i].copy(&connection_ids_[i]);
   }
   return ConnectionId(std::move(clone));
 }
 
 std::ostream& operator<<(std::ostream& out, const ConnectionId& cid) {
+  bool first = true;
   for (const zmq::message_t& connection_id : cid.connection_ids_) {
-    out << connection_id << std::endl;
+    if (!first) {
+      out << std::endl;
+    }
+    out << connection_id;
+    first = false;
   }
   return out;
 }

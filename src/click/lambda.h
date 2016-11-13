@@ -9,29 +9,20 @@
 
 namespace latticeflow {
 
-template <typename Direction, typename T>
-class Lambda;
-
-template <typename T>
-class Lambda<Push, T> : public Pusher<T> {
+template <typename T, typename F>
+class Lambda : public Pusher<T> {
  public:
-  explicit Lambda(std::function<void(T)> f) : f_(f) {}
-  void push(T x) override { f_(x); }
+  explicit Lambda(F&& f) : f_(std::forward<F>(f)) {}
+  void push(T&& x) override { f_(std::forward<T>(x)); }
 
  private:
-  std::function<void(T)> f_;
+  F f_;
 };
 
-template <typename T>
-class Lambda<Pull, T> : public Puller<T> {
- public:
-  explicit Lambda(std::function<boost::optional<T>()> f) : f_(f) {}
-
-  boost::optional<T> pull() override { return f_(); }
-
- private:
-  std::function<boost::optional<T>()> f_;
-};
+template <typename T, typename F>
+Lambda<T, F> make_lambda(F&& f) {
+  return Lambda(std::forward<F>(f));
+}
 
 }  // namespace latticeflow
 

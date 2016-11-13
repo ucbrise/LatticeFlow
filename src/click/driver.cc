@@ -12,6 +12,13 @@ void Driver::RegisterEventHandler(EventHandler* event_handler) {
 
 void Driver::Run() {
   while (true) {
+    // `EventHandler`s may call `RegisterEventHandler` which means that if we
+    // iterate over `event_handlers_` or `pollitems_`, the iterators may be
+    // invalidated as we call event handlers. Thus, we move both vectors into
+    // local variables before iterating over them. Calls to
+    // `RegisterEventHandler` will add to the member variables, not the local
+    // variables. At the end of each iteration, we move values back from the
+    // local variables to the members.
     std::vector<EventHandler*> event_handlers = std::move(event_handlers_);
     std::vector<zmq::pollitem_t> pollitems = std::move(pollitems_);
     event_handlers_.clear();
