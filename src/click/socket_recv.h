@@ -12,10 +12,10 @@ namespace latticeflow {
 
 // A `SocketRecv` polls on data arriving on a socket. When data arrives, it is
 // read into an `EnvelopedMessage` and moved to a downstream `Pushable`.
-template <typename T>
+template <typename To>
 class SocketRecv : public EventHandler {
  public:
-  SocketRecv(zmq::socket_t* socket, Pushable<T>* downstream)
+  SocketRecv(zmq::socket_t* socket, Pushable<To>* downstream)
       : socket_(socket), downstream_(downstream) {}
 
   bool IsOneOff() const override { return false; }
@@ -30,7 +30,7 @@ class SocketRecv : public EventHandler {
 
  private:
   zmq::socket_t* socket_;
-  Pushable<T>* downstream_;
+  Pushable<To>* downstream_;
 };
 
 }  // namespace latticeflow

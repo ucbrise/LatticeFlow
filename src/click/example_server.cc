@@ -1,4 +1,5 @@
 #include <chrono>
+#include <ios>
 #include <iostream>
 #include <thread>
 #include <utility>
@@ -12,6 +13,7 @@
 #include "click/socket_recv.h"
 #include "click/socket_send.h"
 #include "click/tee.h"
+#include "click/timer.h"
 #include "zmq_util/zmq_util.h"
 
 // #include "click/dup.h"
@@ -22,6 +24,18 @@ namespace lf = latticeflow;
 
 using EnvMsg = lf::EnvelopedMessage;
 using CId = lf::ConnectionId;
+
+EnvMsg&& print_envmsg(EnvMsg&& e) {
+  std::cout << "zmq::message_t(" << e.msg.size() << ")" << std::endl;
+  return std::move(e);
+};
+
+void print_int(int x) { std::cout << x << std::endl; };
+
+int get_num(EnvMsg&&) {
+  static int i = 0;
+  return i++;
+}
 
 #if 0
 constexpr int NUM_THREADS = 4;
@@ -66,13 +80,6 @@ lf::EnvelopedMessage&& id_refref_to_refref(lf::EnvelopedMessage&& e) {
 #endif
 
 int main() {
-  zmq::context_t context(1);
-
-  zmq::socket_t router(context, ZMQ_ROUTER);
-  const std::string router_address = "tcp://*:5555";
-  router.bind(router_address);
-  std::cout << "Router listening on '" << router_address << "'." << std::endl;
-
 #if 0
   zmq::socket_t source(context, ZMQ_PUSH);
   const std::string source_adress = "tcp://*:5556";
@@ -119,23 +126,55 @@ int main() {
     thread.join();
   }
 #endif
-  auto f = [](EnvMsg && e) -> EnvMsg&& {
-    std::cout << e << std::endl << std::endl;
-    return std::move(e);
-  };
+  // Set up sockets and instantiate the driver.
+  zmq::context_t context(1);
+  zmq::socket_t router(context, ZMQ_ROUTER);
+  const std::string router_address = "tcp://*:5555";
+  router.bind(router_address);
+  std::cout << "Router listening on '" << router_address << "'." << std::endl;
+  lf::Driver driver;
 
-  // Element graph.
-  lf::SocketSend out(&router);
-
-  lf::Map<EnvMsg&&, EnvMsg, decltype(f)&> print_map(f, &out);
+  // Create the element graph.
+  //
+  //                                 +----------------+
+  //                                 | print_int_call |
+  //                                 +--------^-------+
+  //                                          |
+  //                                      +---+---+            +-----+
+  //                                      | timer |            | out |
+  //                                      +---^---+            +--^--+
+  //                                          |                   |
+  //   +------+ +-------------------+ +-------+-------+ +------------------+
+  //   | drop | | print_envmsg_call | | envmsg_to_int | | print_envmsg_map |
+  //   +--^---+ +-------------------+ +--------^------+ +------------------+
+  //      |               |                    |                  |
+  //      +---------------+----------+---------+------------------+
+  //                                 |
+  //                              +--+--+
+  //                              | tee |
+  //                              +--^--+
+  //                                 |
+  //                              +--+--+
+  //                              | in  |
+  //                              +-----+
   lf::Drop<EnvMsg&&> drop;
-  lf::Call<EnvMsg&&, decltype(f)&> print_call(f);
 
-  lf::Tee<EnvMsg&&, EnvMsg&&> tee({&drop, &print_call, &print_map});
+  lf::Call<EnvMsg&&, decltype(&print_envmsg)> print_envmsg_call(print_envmsg);
+
+  lf::Call<const int&, decltype(&print_int)> print_int_call(print_int);
+  lf::Timer<int, const int&> timer(
+      &driver, std::chrono::nanoseconds(5000000000), &print_int_call);
+  lf::Map<EnvMsg&&, int, decltype(&get_num)> envmsg_to_int(get_num, &timer);
+
+  lf::SocketSend out(&router);
+  lf::Map<EnvMsg&&, EnvMsg, decltype(&print_envmsg)> print_envmsg_map(
+      print_envmsg, &out);
+
+  lf::Tee<EnvMsg&&, EnvMsg&&> tee(
+      {&drop, &print_envmsg_call, &envmsg_to_int, &print_envmsg_map});
   lf::SocketRecv<EnvMsg&&> in(&router, &tee);
 
   // Start the driver.
-  lf::Driver driver;
   driver.RegisterEventHandler(&in);
   driver.Run();
 }

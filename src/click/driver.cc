@@ -32,8 +32,12 @@ void Driver::Run() {
       assert(event_handlers_it != std::end(event_handlers));
 
       if (pollitems_it->events & pollitems_it->revents) {
+        // One-off timers might kill themselves when their event handler is
+        // called. Thus, we need to make sure not not access the event handler
+        // after we've run it.
+        bool is_one_off = (*event_handlers_it)->IsOneOff();
         (*event_handlers_it)->Run(*pollitems_it);
-        if ((*event_handlers_it)->IsOneOff()) {
+        if (is_one_off) {
           pollitems_it = pollitems.erase(pollitems_it);
           event_handlers_it = event_handlers.erase(event_handlers_it);
           continue;
