@@ -84,6 +84,11 @@ class GroupBy {
   std::map<Group, std::vector<From>> groups_;
 };
 
+template <typename Group, typename From, typename To>
+GroupBy<Group, From, To> make_group_by(Pushable<To>* downstream) {
+  return GroupBy<Group, From, To>(downstream);
+}
+
 }  // namespace latticeflow
 
 #endif  // CLICK_MAP_H_

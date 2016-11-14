@@ -33,6 +33,12 @@ class SocketRecv : public EventHandler {
   Pushable<To>* downstream_;
 };
 
+template <typename To>
+SocketRecv<To> make_socket_recv(zmq::socket_t* socket,
+                                Pushable<To>* downstream) {
+  return SocketRecv<To>(socket, downstream);
+}
+
 }  // namespace latticeflow
 
 #endif  // CLICK_SOCKET_RECV_H_

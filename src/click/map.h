@@ -23,6 +23,11 @@ class Map : public Pushable<From&&> {
   Pushable<To>* downstream_;
 };
 
+template <typename From, typename To, typename F>
+Map<From, To, F> make_map(F&& f, Pushable<To>* downstream) {
+  return Map<From, To, F>(std::forward<F>(f), downstream);
+}
+
 }  // namespace latticeflow
 
 #endif  // CLICK_FILTER_H_

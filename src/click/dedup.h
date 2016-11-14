@@ -42,6 +42,11 @@ class Dedup : public Pushable<From> {
   std::map<From, int> counts_;
 };
 
+template <typename From, typename To>
+Dedup<From, To> make_dedup(Pushable<To>* downstream, const int num_dups) {
+  return Dedup<From, To>(downstream, num_dups);
+}
+
 }  // namespace latticeflow
 
 #endif  // CLICK_DEDUP_H_

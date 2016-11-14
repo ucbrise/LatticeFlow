@@ -32,6 +32,11 @@ class Dup : public Pushable<From&&> {
   const int num_dups_;
 };
 
+template <typename From, typename To>
+Dup<From, To> make_dup(Pushable<To>* downstream, const int num_dups) {
+  return Dup<From, To>(downstream, num_dups);
+}
+
 }  // namespace latticeflow
 
 #endif  // CLICK_DUP_H_

@@ -148,38 +148,31 @@ int main() {
   lf::Driver driver;
 
   lf::SocketSend out(&router);
-  lf::Map<Group&&, EnvMsg, decltype(&reduce_group)> reduce(reduce_group, &out);
-  lf::GroupBy<CId, int, Group&&> group_by(&reduce);
+  auto reduce = lf::make_map<Group&&>(reduce_group, &out);
+  auto group_by = lf::make_group_by<CId, int>(&reduce);
 
-  lf::Timer<CId, CId&&> timer(&driver, kDelay, &group_by.end());
-  lf::Map<EnvMsg&&, CId, decltype(&extract_envmsg_cid)> extract_cid1(
-      extract_envmsg_cid, &timer);
-  lf::Map<EnvMsg&&, EnvMsg&&, decltype(&lf::Clone)> copy_envmsg1(lf::Clone,
-                                                                 &extract_cid1);
+  auto timer = lf::make_timer<CId>(&driver, kDelay, &group_by.end());
+  auto extract_cid1 = lf::make_map<EnvMsg&&>(extract_envmsg_cid, &timer);
+  auto copy_envmsg1 = lf::make_map<EnvMsg&&>(lf::Clone, &extract_cid1);
 
-  lf::Map<std::pair<CId, int>&&, std::pair<CId, int>&&,
-          decltype(&print_envmsg_group)>
-      print_group(print_envmsg_group, &group_by.push());
-  lf::Map<EnvMsg&&, std::pair<CId, int>&&, decltype(&make_group_evnmsg)>
-      group_envmsg(make_group_evnmsg, &print_group);
-  lf::Map<EnvMsg&&, EnvMsg&&, decltype(&lf::Clone)> copy_envmsg2(lf::Clone,
-                                                                 &group_envmsg);
+  auto print_group =
+      lf::make_map<std::pair<CId, int>&&>(print_envmsg_group, &group_by.push());
+  auto group_envmsg = lf::make_map<EnvMsg&&>(make_group_evnmsg, &print_group);
+  auto copy_envmsg2 = lf::make_map<EnvMsg&&>(lf::Clone, &group_envmsg);
 
-  lf::Dedup<CId, CId&&> dedup(&group_by.end(), kNumWorkers);
-  lf::Map<EnvMsg&&, CId, decltype(&extract_envmsg_cid)> extract_cid2(
-      extract_envmsg_cid, &dedup);
-  lf::Map<EnvMsg&&, EnvMsg&&, decltype(&lf::Clone)> copy_envmsg3(lf::Clone,
-                                                                 &extract_cid2);
+  auto dedup = lf::make_dedup<CId>(&group_by.end(), kNumWorkers);
+  auto extract_cid2 = lf::make_map<EnvMsg&&>(extract_envmsg_cid, &dedup);
+  auto copy_envmsg3 = lf::make_map<EnvMsg&&>(lf::Clone, &extract_cid2);
 
-  lf::Tee<EnvMsg&&, EnvMsg&&> from_workers_tee({&copy_envmsg2, &copy_envmsg3});
-  lf::SocketRecv<EnvMsg&&> from_workers(&sink, &from_workers_tee);
+  auto from_workers_tee =
+      lf::make_tee<EnvMsg&&, EnvMsg&&>({&copy_envmsg2, &copy_envmsg3});
+  auto from_workers = lf::make_socket_recv(&sink, &from_workers_tee);
   lf::SocketSend to_workers(&source);
-  lf::Map<EnvMsg&&, EnvMsg, decltype(&lf::Clone)> copy_envmsg4(lf::Clone,
-                                                               &to_workers);
-  lf::Dup<EnvMsg&&, EnvMsg&&> dup_envmsg(&copy_envmsg4, kNumWorkers);
+  auto copy_envmsg4 = lf::make_map<EnvMsg&&>(lf::Clone, &to_workers);
+  auto dup_envmsg = lf::make_dup<EnvMsg&&>(&copy_envmsg4, kNumWorkers);
 
-  lf::Tee<EnvMsg&&, EnvMsg&&> in_tee({&copy_envmsg1, &dup_envmsg});
-  lf::SocketRecv<EnvMsg&&> in(&router, &in_tee);
+  auto in_tee = lf::make_tee<EnvMsg&&, EnvMsg&&>({&copy_envmsg1, &dup_envmsg});
+  auto in = lf::make_socket_recv(&router, &in_tee);
 
   // Start worker threads.
   std::vector<std::thread> workers;

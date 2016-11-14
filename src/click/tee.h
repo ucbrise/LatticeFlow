@@ -45,6 +45,11 @@ class Tee : public Pushable<From&&> {
   std::vector<Pushable<To>*> downstreams_;
 };
 
+template <typename From, typename To>
+Tee<From, To> make_tee(std::vector<Pushable<To>*> downstreams) {
+  return Tee<From, To>{downstreams};
+}
+
 }  // namespace latticeflow
 
 #endif  // CLICK_ROUND_TEE_H_

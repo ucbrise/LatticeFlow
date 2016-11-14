@@ -123,6 +123,12 @@ class Timer : public Pushable<From> {
       timer_event_handlers_;
 };
 
+template <typename From, typename To>
+Timer<From, To> make_timer(Driver* driver, std::chrono::nanoseconds delay,
+                           Pushable<To>* downstream) {
+  return Timer<From, To>(driver, delay, downstream);
+}
+
 }  // namespace latticeflow
 
 #endif  //  CLICK_TIMER_H_
