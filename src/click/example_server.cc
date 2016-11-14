@@ -3,12 +3,14 @@
 #include <iostream>
 #include <thread>
 #include <utility>
+#include <vector>
 
 #include "zmq.hpp"
 
 #include "click/call.h"
 #include "click/driver.h"
 #include "click/drop.h"
+#include "click/group_by.h"
 #include "click/map.h"
 #include "click/socket_recv.h"
 #include "click/socket_send.h"
@@ -173,6 +175,28 @@ int main() {
   lf::Tee<EnvMsg&&, EnvMsg&&> tee(
       {&drop, &print_envmsg_call, &envmsg_to_int, &print_envmsg_map});
   lf::SocketRecv<EnvMsg&&> in(&router, &tee);
+
+  auto print_group = [](const std::pair<int, std::vector<int>>& p) {
+    std::cout << p.first << ": "
+              << "[";
+    for (std::size_t i = 0; i < p.second.size(); ++i) {
+      if (i != 0) {
+        std::cout << ", ";
+      }
+      std::cout << p.second[i];
+    }
+    std::cout << "]" << std::endl;
+  };
+  lf::Call<const std::pair<int, std::vector<int>>&, decltype(print_group)&>
+      print_groups(print_group);
+  lf::GroupBy<int, int, const std::pair<int, std::vector<int>>&> group_by(
+      &print_groups);
+  group_by.push().push(std::make_pair(0, 1));
+  group_by.push().push(std::make_pair(0, 2));
+  group_by.push().push(std::make_pair(0, 3));
+  group_by.push().push(std::make_pair(0, 4));
+  group_by.end().push(1);
+  group_by.end().push(0);
 
   // Start the driver.
   driver.RegisterEventHandler(&in);

@@ -1,6 +1,9 @@
 # Push and Pull
 A collection of Click-style push and pull operators.
 
+## TODO
+- add `std::is_convertible` checks in more places?
+
 ```
 // `Call(f).push(x)` perfect forwards `x` to `f` where `x` is an lvalue
 // reference or rvalue reference. The type of `f`, `F`, is a template

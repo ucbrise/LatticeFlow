@@ -6,54 +6,57 @@
 #include <utility>
 #include <vector>
 
-#include "boost/optional.hpp"
-
-#include "click/lambda.h"
-#include "click/phantoms.h"
-#include "click/puller.h"
-#include "click/pusher.h"
+#include "click/call.h"
+#include "click/pushable.h"
 
 namespace latticeflow {
 
-template <typename Group, typename T>
-class GroupBy<Push, Group, T> {
- public:
-  explicit GroupBy(Pusher<std::pair<Group, std::vector<T>>>* downstream,
-                   std::function<Group(T)> group)
-      : downstream_(downstream),
-        group_(group),
-        push_group_([this](T x) { this->push_group(x); }),
-        end_group_([this](Group group) { this->end_group(group); }) {}
+// TODO(mwhittaker): Document.
+template <typename Group, typename From, typename To>
+class GroupBy {
+  static_assert(!std::is_reference<Group>::value,
+                "GroupBy takes ownership of group values, so they must be "
+                "passed by value.");
 
-  Pusher<T>& push_group() { return push_group_; }
-  Pusher<Group>& end_group() { return end_group_; }
+  static_assert(
+      !std::is_reference<From>::value,
+      "GroupBy takes ownership of values, so they must be passed by value.");
+
+  static_assert(
+      std::is_convertible<std::pair<Group, std::vector<From>>&&, To>::value,
+      "GroupBy moves an std::pair<Group, std::vector<From>> downstream, so it "
+      "must be implicitly convertible to something of type To.");
+
+ public:
+  explicit GroupBy(Pushable<To>* downstream)
+      : downstream_(downstream),
+        push_([this](std::pair<Group, From> p) {
+          this->push_call(std::move(p));
+        }),
+        end_([this](Group g) { this->end_call(std::move(g)); }) {}
+
+  Pushable<std::pair<Group, From>&&>& push() { return push_; }
+  Pushable<Group&&>& end() { return end_; }
 
  private:
-  void push_group(T x) {
-    Group group = group_(x);
-    groups_[group].push_back(x);
+  void push_call(std::pair<Group, From> x) {
+    groups_[std::move(x.first)].push_back(std::move(x.second));
   }
 
-  void end_group(Group group) {
-    std::pair<Group, std::vector<T>> xs =
+  void end_call(Group group) {
+    std::pair<Group, std::vector<From>> p =
         std::make_pair(group, std::move(groups_[group]));
     groups_.erase(group);
-    downstream_->push(xs);
+    downstream_->push(std::move(p));
   }
 
-  Pusher<std::pair<Group, std::vector<T>>>* downstream_;
-  std::function<Group(T)> group_;
-  Lambda<Push, T> push_group_;
-  Lambda<Push, Group> end_group_;
-  std::map<Group, std::vector<T>> groups_;
+  Pushable<To>* downstream_;
+  using push_call_type = std::function<void(std::pair<Group, From>)>;
+  using end_call_type = std::function<void(Group)>;
+  Call<std::pair<Group, From>&&, push_call_type> push_;
+  Call<Group&&, end_call_type> end_;
+  std::map<Group, std::vector<From>> groups_;
 };
-
-template <typename Group, typename T>
-GroupBy<Push, Group, T> make_group_by(
-    Pusher<std::pair<Group, std::vector<T>>>* downstream,
-    std::function<Group(T)> group) {
-  return GroupBy<Push, Group, T>(downstream, group);
-}
 
 }  // namespace latticeflow
 
