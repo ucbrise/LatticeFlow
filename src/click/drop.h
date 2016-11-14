@@ -3,6 +3,8 @@
 
 #include <type_traits>
 
+#include <iostream>
+
 #include "click/pushable.h"
 
 namespace latticeflow {
@@ -11,7 +13,7 @@ namespace latticeflow {
 template <typename T>
 class Drop : public Pushable<T&&> {
  public:
-  void push(T&&) override {}
+  void push(T&&) override { std::cout << "dropped" << std::endl; }
 };
 
 }  // namespace latticeflow

@@ -1,71 +1,46 @@
 #ifndef CLICK_DEDUP_H_
 #define CLICK_DEDUP_H_
 
+#include <cassert>
 #include <map>
 
-#include "boost/optional.hpp"
-
-#include "click/phantoms.h"
-#include "click/puller.h"
-#include "click/pusher.h"
+#include "click/pushable.h"
 
 namespace latticeflow {
 
-template <typename Direction, typename T>
-class Dedup;
+template <typename From, typename To>
+class Dedup : public Pushable<From> {
+  // TODO(mwhittaker): I don't think Dedup shouldn be owning everything passed
+  // to it. Think about how to make this better.
+  static_assert(
+      !std::is_reference<From>::value,
+      "Dedup takes ownership of values, so they must be passed by value.");
 
-template <typename T>
-class Dedup<Push, T> : public Pusher<T> {
  public:
-  explicit Dedup(Pusher<T>* downstream, const int num_dups)
-      : downstream_(downstream), num_dups_(num_dups) {}
-
-  void push(T x) override {
-    counts_[x]++;
-    if (counts_[x] == num_dups_) {
-      counts_[x] = 0;
-      downstream_->push(x);
-    }
+  explicit Dedup(Pushable<To>* downstream, const int num_dups)
+      : downstream_(downstream), num_dups_(num_dups) {
+    // TODO(mwhittaker): User proper assertions.
+    assert(num_dups > 1);
   }
 
- private:
-  Pusher<T>* downstream_;
-  const int num_dups_;
-  std::map<T, int> counts_;
-};
-
-template <typename T>
-Dedup<Push, T> make_dedup(Pusher<T>* downstream, const int num_dups) {
-  return Dedup<Push, T>(downstream, num_dups);
-}
-
-template <typename T>
-class Dedup<Pull, T> : public Puller<T> {
- public:
-  explicit Dedup(Puller<T>* upstream, const int num_dups)
-      : upstream_(upstream), num_dups_(num_dups) {}
-
-  boost::optional<T> pull() override {
-    boost::optional<T> x = upstream_->pull();
-    counts_[x]++;
-    if (counts_[x] == num_dups_) {
-      counts_[x] = 0;
-      return x;
+  void push(From x) override {
+    auto it = counts_.find(x);
+    if (it == std::end(counts_)) {
+      counts_.insert(std::make_pair(std::move(x), 1));
     } else {
-      return {};
+      it->second++;
+      if (it->second == num_dups_) {
+        downstream_->push(std::move(x));
+        counts_.erase(it);
+      }
     }
   }
 
  private:
-  Puller<T>* upstream_;
+  Pushable<To>* downstream_;
   const int num_dups_;
-  std::map<boost::optional<T>, int> counts_;
+  std::map<From, int> counts_;
 };
-
-template <typename T>
-Dedup<Pull, T> make_dedup(Puller<T>* upstream, const int num_dups) {
-  return Dedup<Pull, T>(upstream, num_dups);
-}
 
 }  // namespace latticeflow
 

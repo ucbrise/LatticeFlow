@@ -11,9 +11,29 @@
 
 namespace latticeflow {
 
-// TODO(mwhittaker): Document.
+// A `GroupBy` implements the relational GROUP BY operator. Elements annotated
+// with their group can be pushed into the `GroupBy` using `GroupBy::push`. The
+// contents of a group can be flushed downstream by calling `GroupBy::end`. For
+// example,
+//
+//   Group<int, int, ...> group_by(&downstream);
+//   group_by.push().push(std::make_pair(0, 1));
+//   group_by.push().push(std::make_pair(1, 100));
+//   group_by.push().push(std::make_pair(0, 2));
+//   group_by.push().push(std::make_pair(1, 200));
+//   group_by.push().push(std::make_pair(0, 3));
+//   group_by.end().push(0); // pushes (0, [1, 2, 3])  to downstream
+//   group_by.end().push(1); // pushes (1, [100, 200]) to downstream
+//   group_by.end().push(0); // pushes (0, [])         to downstream
+//   group_by.end().push(1); // pushes (1, [])         to downstream
+//   group_by.push().push(std::make_pair(0, 42));
+//   group_by.push().push(std::make_pair(1, 14));
+//   group_by.end().push(0); // pushes (0, [42])       to downstream
+//   group_by.end().push(1); // pushes (1, [14])       to downstream
 template <typename Group, typename From, typename To>
 class GroupBy {
+  // TODO(mwhittaker): Think about whether we actually need to take ownership
+  // of groups. I don't think we do.
   static_assert(!std::is_reference<Group>::value,
                 "GroupBy takes ownership of group values, so they must be "
                 "passed by value.");
@@ -44,10 +64,16 @@ class GroupBy {
   }
 
   void end_call(Group group) {
-    std::pair<Group, std::vector<From>> p =
-        std::make_pair(group, std::move(groups_[group]));
-    groups_.erase(group);
-    downstream_->push(std::move(p));
+    auto it = groups_.find(group);
+    if (it == std::end(groups_)) {
+      downstream_->push(std::make_pair(std::move(group), std::vector<From>()));
+    } else {
+      std::vector<From> xs = std::move(it->second);
+      std::pair<Group, std::vector<From>> p =
+          std::make_pair(std::move(group), std::move(xs));
+      downstream_->push(std::move(p));
+      groups_.erase(it);
+    }
   }
 
   Pushable<To>* downstream_;
