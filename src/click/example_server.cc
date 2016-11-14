@@ -124,8 +124,6 @@ int main() {
   //              |
   //           reduce
   //              |
-  //     every other by group
-  //              |
   //     ______group by________
   //    /         |            \
   //   end       push         end
