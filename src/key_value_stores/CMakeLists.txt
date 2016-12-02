@@ -12,11 +12,13 @@ SET(KV_LIBRARY_DEPENDENCIES
     protobuf
     pthread
     zmq
+    zmq_util
 )
 
 # The source dependencies of the key value store clients and servers.
 SET(KV_SRC_DEPENDENCIES
     ${PROTO_SRC}
+    client.cc
     util.cc
     zmq_util.cc
 )

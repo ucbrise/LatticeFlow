@@ -18,6 +18,7 @@
 #include "lattices/max_lattice.h"
 #include "lattices/set_union_lattice.h"
 #include "lattices/timestamp_lattice.h"
+#include "zmq_util/zmq_util.h"
 
 namespace lf = latticeflow;
 
@@ -61,6 +62,8 @@ std::string process_request(communication::Request& request,
                             int* const update_counter,
                             std::set<std::string>* const change_set,
                             int* const local_timestamp) {
+  std::cout << "Thread " << thread_id << " processing request:" << std::endl
+            << request.DebugString() << std::endl;
   communication::Response response;
 
   switch (request.request_case()) {
@@ -68,14 +71,21 @@ std::string process_request(communication::Request& request,
       // TODO(mwhittaker): Why local_timestamp + thread_id?
       response.set_timestamp(std::stoi(std::to_string(*local_timestamp) +
                                        std::to_string(thread_id)));
+      response.set_succeed(true);
       (*local_timestamp)++;
       break;
     }
     case communication::Request::kGet: {
-      const TimestampedStringLattice& l = db->get(request.get().key());
-      response.set_value(l.value().get());
-      response.set_timestamp(l.timestamp().get());
-      response.set_succeed(true);
+      const std::unordered_map<std::string, TimestampedStringLattice>& raw_db =
+          db->get();
+      if (raw_db.count(request.get().key()) == 0) {
+        response.set_succeed(false);
+      } else {
+        const TimestampedStringLattice& l = db->get(request.get().key());
+        response.set_value(l.value().get());
+        response.set_timestamp(l.timestamp().get());
+        response.set_succeed(true);
+      }
       break;
     }
     case communication::Request::kPut: {
@@ -92,7 +102,6 @@ std::string process_request(communication::Request& request,
       break;
     }
     case communication::Request::REQUEST_NOT_SET: {
-      response.set_err(true);
       response.set_succeed(false);
       break;
     }
@@ -104,7 +113,7 @@ std::string process_request(communication::Request& request,
 
 // Given a database (`db`) and set of keys that have been updated in the
 // database (`change_set`), send a GossipData message over `publisher`.
-void send_gossip(const Database& db, const std::set<std::string> change_set,
+void send_gossip(const Database& db, const std::set<std::string>& change_set,
                  zmq::socket_t* publisher) {
   // GossipData messages are shared on the heap. When a thread goes to publish
   // a GossipData message, it allocates in on the heap and sends a pointer to
@@ -181,19 +190,17 @@ void worker_routine(const int thread_id, Barrier* all_threads_bound,
 
   // Threads listen on the client-facing socket and the gossiping socket at the
   // same time. We use ZeroMQ's polling mechanism to do this.
-  zmq::pollitem_t items[] = {
-      {static_cast<void*>(responder), 0, ZMQ_POLLIN, 0},
-      {static_cast<void*>(subscriber), 0, ZMQ_POLLIN, 0}};
+  std::vector<zmq::pollitem_t> items = {{responder, 0, ZMQ_POLLIN, 0},
+                                        {subscriber, 0, ZMQ_POLLIN, 0}};
 
   // Enter the event loop!
   while (true) {
-    zmq::poll(&items[0], 2 /* nitems */, -1 /* timeout */);
+    lf::poll(-1, &items);
 
     // Process a request from the client.
     if (static_cast<bool>(items[0].revents & ZMQ_POLLIN)) {
       communication::Request request;
       recv_proto(&request, &responder);
-
       std::string result =
           process_request(request, thread_id, &kvs, &update_counter,
                           &change_set, &local_timestamp);

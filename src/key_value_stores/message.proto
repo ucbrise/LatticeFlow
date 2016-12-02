@@ -30,15 +30,12 @@ message Request {
 
 // A response from a key-value store.
 message Response {
-  // True if the RPC errored;
-  optional bool err = 1;
-
   // True if the RPC succeeded;
-  optional bool succeed = 2;
+  optional bool succeed = 1;
 
   // The response to a PUT request; unset otherwise.
-  optional string value = 3;
+  optional string value = 2;
 
   // The response to a BEGIN_TRANSACTION request; unset otherwise.
-  optional int64 timestamp = 4;
+  optional int64 timestamp = 3;
 }

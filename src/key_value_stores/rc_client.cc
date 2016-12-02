@@ -16,21 +16,81 @@
 
 #include <zmq.hpp>
 
+#include "key_value_stores/client.h"
 #include "key_value_stores/message.pb.h"
 #include "key_value_stores/util.h"
 #include "key_value_stores/zmq_util.h"
 
-namespace {
+class RcClient : public Client {
+ public:
+  explicit RcClient(zmq::socket_t *socket)
+      : socket_(socket), current_timestamp_(-1) {}
 
-std::string usage() {
-  return "usage: \n"
-         "  BEGIN CHECKPOINT\n"
-         "  GET <key>\n"
-         "  PUT <key> <value>\n"
-         "  END";
-}
+  void begin() {
+    communication::Request request;
+    request.mutable_begin_transaction();
+    send_proto(request, socket_);
 
-}  // namespace
+    communication::Response response;
+    recv_proto(&response, socket_);
+    if (response.succeed()) {
+      current_timestamp_ = response.timestamp();
+      std::cout << current_timestamp_ << std::endl;
+    } else {
+      std::cout << "ERROR" << std::endl;
+    }
+  }
+
+  void get(const std::string &k) {
+    if (write_buffer_.count(k) != 0) {
+      std::cout << write_buffer_[k] << std::endl;
+    } else {
+      communication::Request request;
+      request.mutable_get()->set_key(k);
+      send_proto(request, socket_);
+
+      communication::Response response;
+      recv_proto(&response, socket_);
+      if (response.succeed()) {
+        std::cout << response.value() << std::endl;
+      } else {
+        std::cout << "ERROR" << std::endl;
+      }
+    }
+  }
+
+  void put(const std::string &k, const std::string &v) {
+    if (current_timestamp_ == -1) {
+      std::cout << "First run BEGIN TRANSACTION." << std::endl;
+    } else {
+      write_buffer_[k] = v;
+    }
+  }
+
+  void end() {
+    communication::Request request;
+    request.mutable_put()->set_timestamp(current_timestamp_);
+    for (const std::pair<std::string, std::string> &kv : write_buffer_) {
+      communication::Request::Put::KeyValuePair *p =
+          request.mutable_put()->add_kv_pair();
+      p->set_key(std::get<0>(kv));
+      p->set_value(std::get<1>(kv));
+    }
+    send_proto(request, socket_);
+
+    communication::Response response;
+    recv_proto(&response, socket_);
+    if (!response.succeed()) {
+      std::cout << "ERROR" << std::endl;
+    }
+    write_buffer_.clear();
+  }
+
+ private:
+  zmq::socket_t *const socket_;
+  int current_timestamp_;
+  std::unordered_map<std::string, std::string> write_buffer_;
+};
 
 int main() {
   zmq::context_t context(1);
@@ -39,63 +99,6 @@ int main() {
   std::cout << "client connected to "
             << "tcp://localhost:5559" << std::endl;
 
-  int current_timestamp = -1;
-
-  // As explained at the top of this file, clients buffer their writes, sending
-  // them to the server only when the transaction is ended.
-  std::unordered_map<std::string, std::string> buffer;
-
-  while (true) {
-    std::cout << "Please enter a request: " << std::flush;
-    std::string input;
-    getline(std::cin, input);
-    std::vector<std::string> input_parts;
-    split(input, ' ', &input_parts);
-
-    if (input_parts[0] == "BEGIN") {
-      communication::Request request;
-      request.mutable_begin_transaction();
-      send_proto(request, &socket);
-
-      communication::Response response;
-      recv_proto(&response, &socket);
-      current_timestamp = response.timestamp();
-      std::cout << "timestamp is " << current_timestamp << std::endl;
-    } else if (input_parts[0] == "GET") {
-      const std::string &key = input_parts[1];
-      communication::Request request;
-      request.mutable_get()->set_key(key);
-      send_proto(request, &socket);
-
-      communication::Response response;
-      recv_proto(&response, &socket);
-      if (buffer.count(key) != 0 && response.timestamp() < current_timestamp) {
-        std::cout << "value is " << buffer[key] << std::endl;
-      } else {
-        std::cout << "value is " << response.value() << std::endl;
-      }
-    } else if (input_parts[0] == "PUT") {
-      const std::string &key = input_parts[1];
-      const std::string &value = input_parts[2];
-      buffer[key] = value;
-    } else if (input_parts[0] == "END") {
-      communication::Request request;
-      request.mutable_put()->set_timestamp(current_timestamp);
-      for (const std::pair<std::string, std::string> &kv : buffer) {
-        communication::Request::Put::KeyValuePair *p =
-            request.mutable_put()->add_kv_pair();
-        p->set_key(std::get<0>(kv));
-        p->set_value(std::get<1>(kv));
-      }
-      send_proto(request, &socket);
-
-      communication::Response response;
-      recv_proto(&response, &socket);
-      std::cout << "Successful? " << response.succeed() << std::endl;
-      buffer.clear();
-    } else {
-      std::cout << "Invalid request: " << input << std::endl;
-      std::cout << usage() << std::endl;
-    }
-  }
+  RcClient client(&socket);
+  repl(&client);
 }
