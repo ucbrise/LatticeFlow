@@ -32,10 +32,13 @@ find src -name '*.cc' -o -name '*.h' | xargs clang-format -i # format all files
 ## Tour
 | Directory                                            | Description                                    |
 | ---------------------------------------------------- | ---------------------------------------------- |
+| [`click`](src/click/README.md)                       | Click-style event driven server framework.     |
 | [`concurrency`](src/concurrency/README.md)           | Concurrency and synchronization primitives.    |
 | [`flow`](src/flow/README.md)                         | Iterators and stream processors.               |
 | [`key_value_stores`](src/key_value_stores/README.md) | Key value store with varying isolation levels. |
 | [`lattices`](src/lattices/README.md)                 | A collection of join semilattices.             |
+| [`pushpull`](src/pushpull/README.md)                 | Click style push and pull operators.           |
+| [`zmq_util`](src/zmq_util/README.md)                 | ZeroMQ utilities.                              |
 
 ## Administrivia
 - All code should abide by the [Google C++ Style
