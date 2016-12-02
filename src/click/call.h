@@ -19,6 +19,11 @@ class Call : public Pushable<T&&> {
   F f_;
 };
 
+template <typename T, typename F>
+Call<T, F> make_call(F&& f) {
+  return Call<T, F>(std::forward<F>(f));
+}
+
 }  // namespace latticeflow
 
 #endif  // CLICK_CALL_H_
