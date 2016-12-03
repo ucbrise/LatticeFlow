@@ -12,7 +12,7 @@ std::string message_to_string(const zmq::message_t& message) {
   return std::string(static_cast<const char*>(message.data()), message.size());
 }
 
-zmq::message_t string_to_message(const std::string s) {
+zmq::message_t string_to_message(const std::string& s) {
   zmq::message_t msg(s.size());
   memcpy(msg.data(), s.c_str(), s.size());
   return msg;

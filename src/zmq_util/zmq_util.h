@@ -17,7 +17,7 @@ namespace latticeflow {
 std::string message_to_string(const zmq::message_t& message);
 
 // Converts a string into a `zmq::message_t`.
-zmq::message_t string_to_message(const std::string s);
+zmq::message_t string_to_message(const std::string& s);
 
 // `send` a string over the socket.
 void send_string(const std::string& s, zmq::socket_t* socket);
@@ -37,14 +37,27 @@ void send_enveloped_msg(EnvelopedMessage&& emsg, zmq::socket_t* socket);
 // `recv` a multipart message.
 std::vector<zmq::message_t> recv_msgs(zmq::socket_t* socket);
 
+// Wraps a proto into a message.
+template <typename Proto>
+zmq::message_t proto_to_message(const Proto& proto) {
+  std::string s;
+  proto.SerializeToString(&s);
+  zmq::message_t msg(s.size());
+  memcpy(msg.data(), s.c_str(), s.size());
+  return msg;
+}
+
+// Unwraps a message into a proto.
+template <typename Proto>
+void message_to_proto(const zmq::message_t& msg, Proto* p) {
+  std::string s = message_to_string(msg);
+  p->ParseFromString(s);
+}
+
 // Serialize a proto and `send` it over the socket.
 template <typename RequestProto>
 void send_proto(const RequestProto& request, zmq::socket_t* socket) {
-  std::string request_str;
-  request.SerializeToString(&request_str);
-  zmq::message_t request_msg(request_str.size());
-  memcpy(request_msg.data(), request_str.c_str(), request_str.size());
-  socket->send(request_msg);
+  socket->send(proto_to_message(request));
 }
 
 // `recv` a message and unserialize it into a proto.
@@ -52,26 +65,36 @@ template <typename ResponseProto>
 void recv_proto(ResponseProto* reply, zmq::socket_t* socket) {
   zmq::message_t reply_msg;
   socket->recv(&reply_msg);
-  std::string reply_str = message_to_string(reply_msg);
-  reply->ParseFromString(reply_str);
+  message_to_proto<ResponseProto>(reply_msg, reply);
+}
+
+// Wraps a pointer into a message.
+template <typename T>
+zmq::message_t pointer_to_message(const T* const p) {
+  zmq::message_t msg(sizeof(const T* const));
+  memcpy(msg.data(), &p, sizeof(const T* const));
+}
+
+// Unwraps a message into a pointer.
+template <typename T>
+T* message_to_pointer(zmq::message_t* msg) {
+  // NOLINT: this code is somewhat forced to be hacky due to the low-level
+  // nature of the zeromq API.
+  return *reinterpret_cast<T**>(msg->data());  // NOLINT
 }
 
 // `send` a pointer over the socket.
 template <typename T>
 void send_pointer(const T* const p, zmq::socket_t* socket) {
-  zmq::message_t message(sizeof(const T* const));
-  memcpy(message.data(), &p, sizeof(const T* const));
-  socket->send(message);
+  socket->send(pointer_to_message(p));
 }
 
 // `recv` a pointer over the socket.
 template <typename T>
 T* recv_pointer(zmq::socket_t* socket) {
-  zmq::message_t message;
-  socket->recv(&message);
-  // NOLINT: this code is somewhat forced to be hacky due to the low-level
-  // nature of the zeromq API.
-  return *reinterpret_cast<T**>(message.data());  // NOLINT
+  zmq::message_t msg;
+  socket->recv(&msg);
+  return message_to_pointer<T>(msg);
 }
 
 // `poll` is a wrapper around `zmq::poll` that takes a vector instead of a

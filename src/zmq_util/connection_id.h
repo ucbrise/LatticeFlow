@@ -44,6 +44,9 @@ struct EnvelopedMessage;
 // [1]: http://zguide.zeromq.org/page:all#The-Extended-Reply-Envelope
 class ConnectionId {
  public:
+  // Returns an empty ConnectionId.
+  static ConnectionId Empty();
+
   // Copy a `ConnectionId`. `ConnectionId` doesn't have a copy constructor to
   // avoid accidental copies.
   ConnectionId Clone() const;

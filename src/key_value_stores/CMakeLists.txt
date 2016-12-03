@@ -8,6 +8,7 @@ PROTOBUF_GENERATE_CPP(PROTO_SRC PROTO_HEADER message.proto)
 
 # The library dependencies of the key value store clients and servers.
 SET(KV_LIBRARY_DEPENDENCIES
+    click
     concurrency
     protobuf
     pthread
